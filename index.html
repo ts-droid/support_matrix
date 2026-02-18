@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="sv">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Support Matrix</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="ambient"></div>
+    <main class="layout">
+      <header class="hero">
+        <p class="kicker">Support Matrix</p>
+        <h1>Beslutsstöd för supportflöden</h1>
+        <p>
+          Välj ärendetyp, kundtyp, varumärke och produktgrupp för att få rekommenderad
+          hantering. Uppdatera allt via Admin-läget.
+        </p>
+      </header>
+
+      <section class="card" aria-labelledby="flow-title">
+        <div class="section-head">
+          <h2 id="flow-title">Supportflöde</h2>
+        </div>
+
+        <div class="flow-grid">
+          <label>
+            Ärendetyp
+            <select id="caseType"></select>
+          </label>
+          <label>
+            Kundtyp
+            <select id="customerType"></select>
+          </label>
+          <label>
+            Varumärke
+            <select id="brand"></select>
+          </label>
+          <label>
+            Produktgrupp
+            <select id="category"></select>
+          </label>
+        </div>
+
+        <article class="result" id="result">
+          <h3>Rekommenderad hantering</h3>
+          <p>Gör dina val för att få instruktion.</p>
+        </article>
+
+        <article class="flow-visual" aria-labelledby="flow-visual-title">
+          <h3 id="flow-visual-title">Grafiskt flöde</h3>
+          <div id="flowChart" class="flow-chart"></div>
+        </article>
+      </section>
+
+      <section class="card" aria-labelledby="admin-title">
+        <div class="section-head">
+          <h2 id="admin-title">Admin</h2>
+          <div class="admin-actions">
+            <button id="exportJson" class="ghost">Exportera JSON</button>
+            <label class="ghost file-import" for="importJson">Importera JSON</label>
+            <input id="importJson" type="file" accept="application/json" />
+            <button id="resetData" class="ghost">Återställ exempeldata</button>
+          </div>
+        </div>
+        <p id="importStatus" class="status-line" aria-live="polite"></p>
+
+        <div class="admin-grid">
+          <form id="supplierForm" class="admin-form">
+            <h3>Lägg till leverantör</h3>
+            <input name="name" placeholder="Namn" required />
+            <input name="email" placeholder="E-post" />
+            <textarea name="notes" placeholder="Notering"></textarea>
+            <button type="submit">Spara leverantör</button>
+          </form>
+
+          <form id="brandForm" class="admin-form">
+            <h3>Lägg till varumärke</h3>
+            <input name="name" placeholder="Varumärke" required />
+            <select name="supplierId" id="brandSupplier" required></select>
+            <button type="submit">Spara varumärke</button>
+          </form>
+
+          <form id="categoryForm" class="admin-form">
+            <h3>Lägg till produktgrupp</h3>
+            <input name="name" placeholder="Produktgrupp" required />
+            <button type="submit">Spara produktgrupp</button>
+          </form>
+
+          <form id="ruleForm" class="admin-form wide">
+            <h3>Lägg till hanteringsregel</h3>
+            <div class="rule-grid">
+              <select name="caseType" id="ruleCaseType" required></select>
+              <select name="customerType" id="ruleCustomerType" required></select>
+              <select name="brandId" id="ruleBrand" required></select>
+              <select name="categoryId" id="ruleCategory" required></select>
+            </div>
+            <input name="headline" placeholder="Rubrik / kort sammanfattning" required />
+            <textarea
+              name="instructions"
+              placeholder="Steg för hantering (en rad per steg)"
+              required
+            ></textarea>
+            <input name="responsible" placeholder="Ansvarig (ex: 1st line / Leverantör)" />
+            <input name="sla" placeholder="SLA (ex: svar inom 24h)" />
+            <button type="submit">Spara regel</button>
+          </form>
+        </div>
+
+        <div class="tables">
+          <div>
+            <h3>Leverantörer</h3>
+            <ul id="supplierList"></ul>
+          </div>
+          <div>
+            <h3>Varumärken</h3>
+            <ul id="brandList"></ul>
+          </div>
+          <div>
+            <h3>Produktgrupper</h3>
+            <ul id="categoryList"></ul>
+          </div>
+          <div>
+            <h3>Regler</h3>
+            <ul id="ruleList"></ul>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
