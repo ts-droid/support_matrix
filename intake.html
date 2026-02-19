@@ -103,6 +103,29 @@
         min-height: 1.2rem;
         margin: 0;
       }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        margin-top: 0.25rem;
+      }
+
+      .ghost {
+        border: 1px solid var(--line);
+        background: #fff;
+        color: var(--ink);
+      }
+
+      #csvFile {
+        display: none;
+      }
+
+      .hint {
+        font-size: 0.9rem;
+        color: var(--ink-muted);
+        margin-top: 0.2rem;
+      }
     </style>
   </head>
   <body>
@@ -113,6 +136,20 @@
           Please provide the required support handling details. Once submitted, the data is automatically
           synced into our Support Matrix decision flow.
         </p>
+
+        <h2 style="margin-top: 1rem">Bulk CSV Import</h2>
+        <p>
+          For multiple flows at once, use a CSV file. One row can include multiple categories
+          in <strong>categoryNames</strong> separated by <code>|</code> (example:
+          <code>Laptop|Monitor|Docking</code>).
+        </p>
+        <div class="actions">
+          <button type="button" id="downloadCsvTemplate" class="ghost">Download CSV Template</button>
+          <label class="ghost" for="csvFile" style="display: inline-flex; align-items: center; cursor: pointer; border-radius: 10px; padding: 0.7rem 1rem;">Upload CSV</label>
+          <input id="csvFile" type="file" accept=".csv,text/csv" />
+        </div>
+        <p class="hint">CSV columns: supplierName, supplierEmail, supplierNotes, brandName, categoryNames, caseType, customerType, headline, instructions, responsible, sla</p>
+        <p class="status" id="csvStatus" aria-live="polite"></p>
 
         <form id="intakeForm">
           <div class="grid">
@@ -181,6 +218,24 @@
     <script>
       const form = document.getElementById("intakeForm");
       const statusEl = document.getElementById("status");
+      const csvStatusEl = document.getElementById("csvStatus");
+
+      function downloadCsvTemplate() {
+        const header =
+          "supplierName,supplierEmail,supplierNotes,brandName,categoryNames,caseType,customerType,headline,instructions,responsible,sla";
+        const sample =
+          '"Nordic Supply AB","support@nordicsupply.se","Returns via portal","AeroHome","Robotdammsugare|Skarm","doa","private","DOA replacement process","Validate defect||Create return label||Ship replacement","1st line + Warehouse","Response 4h / replacement 24h"';
+        const payload = `${header}\n${sample}\n`;
+        const blob = new Blob([payload], { type: "text/csv;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "support-matrix-template.csv";
+        a.click();
+        URL.revokeObjectURL(url);
+        csvStatusEl.textContent = "CSV template downloaded.";
+        csvStatusEl.style.color = "#4f5a66";
+      }
 
       form.addEventListener("submit", async (event) => {
         event.preventDefault();
@@ -208,6 +263,38 @@
         } catch (error) {
           statusEl.textContent = `Could not submit: ${error.message}`;
           statusEl.style.color = "#b42318";
+        }
+      });
+
+      document.getElementById("downloadCsvTemplate").addEventListener("click", downloadCsvTemplate);
+
+      document.getElementById("csvFile").addEventListener("change", async (event) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        csvStatusEl.textContent = "Uploading CSV...";
+        csvStatusEl.style.color = "#4f5a66";
+
+        try {
+          const csvText = await file.text();
+          const response = await fetch("/api/intake/csv", {
+            method: "POST",
+            headers: { "Content-Type": "text/csv" },
+            body: csvText,
+          });
+
+          const result = await response.json();
+          if (!response.ok) {
+            throw new Error(result.error || "CSV import failed");
+          }
+
+          csvStatusEl.textContent = `CSV imported: ${result.createdRules} rules, ${result.createdSuppliers} suppliers, ${result.createdBrands} brands, ${result.createdCategories} categories. Skipped rows: ${result.skippedRows}.`;
+          csvStatusEl.style.color = "#067647";
+        } catch (error) {
+          csvStatusEl.textContent = `Could not import CSV: ${error.message}`;
+          csvStatusEl.style.color = "#b42318";
+        } finally {
+          event.target.value = "";
         }
       });
     </script>
