@@ -138,6 +138,13 @@ button.ghost {
   border: 1px solid var(--line);
 }
 
+.action-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
 .admin-actions {
   display: flex;
   flex-wrap: wrap;

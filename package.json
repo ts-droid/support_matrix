@@ -1,0 +1,13 @@
+{
+  "name": "support-matrix",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Support matrix app with brand intake API",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}

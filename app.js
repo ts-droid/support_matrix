@@ -136,19 +136,23 @@ function normalizeData(raw) {
   };
 }
 
-function loadData() {
+function isValidDataShape(data) {
+  return (
+    data.suppliers.length > 0 &&
+    data.brands.length > 0 &&
+    data.categories.length > 0 &&
+    data.rules.length > 0
+  );
+}
+
+function loadDataFromLocal() {
   const raw = localStorage.getItem(STORAGE_KEY);
   if (!raw) return structuredClone(DEFAULT_DATA);
 
   try {
     const parsed = JSON.parse(raw);
     const normalized = normalizeData(parsed);
-    if (
-      !normalized.suppliers.length ||
-      !normalized.brands.length ||
-      !normalized.categories.length ||
-      !normalized.rules.length
-    ) {
+    if (!isValidDataShape(normalized)) {
       return structuredClone(DEFAULT_DATA);
     }
     return normalized;
@@ -157,10 +161,48 @@ function loadData() {
   }
 }
 
-let db = loadData();
+let db = loadDataFromLocal();
 
-function saveData() {
+function saveDataToLocal() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+}
+
+async function pullFromServer() {
+  const response = await fetch("/api/matrix", {
+    method: "GET",
+    headers: { Accept: "application/json" },
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error(`Server fetch failed (${response.status})`);
+  }
+
+  const payload = normalizeData(await response.json());
+  if (!isValidDataShape(payload)) {
+    throw new Error("Server returned invalid matrix payload.");
+  }
+
+  db = payload;
+  saveDataToLocal();
+}
+
+async function pushToServer() {
+  const response = await fetch("/api/matrix", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(db),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Server save failed (${response.status})`);
+  }
+
+  const payload = normalizeData(await response.json());
+  if (isValidDataShape(payload)) {
+    db = payload;
+    saveDataToLocal();
+  }
 }
 
 function optionHtml(value, label) {
@@ -287,7 +329,10 @@ function renderFlowChart(input, rule) {
 
   const matchedBrand = labelForBrand(rule.brandId);
   const matchedCategory = labelForCategory(rule.categoryId);
-  const supplierName = rule.brandId === "all" ? "Varierar" : byId(db.suppliers, byId(db.brands, rule.brandId)?.supplierId || "")?.name || "Okänd leverantör";
+  const supplierName =
+    rule.brandId === "all"
+      ? "Varierar"
+      : byId(db.suppliers, byId(db.brands, rule.brandId)?.supplierId || "")?.name || "Okänd leverantör";
 
   const steps = [
     { label: "1. Ärendetyp", value: labelForCaseType(input.caseType) },
@@ -369,6 +414,16 @@ function setImportStatus(message, isError = false) {
   statusEl.style.color = isError ? "#b42318" : "var(--ink-muted)";
 }
 
+async function persistData(successMessage = "Data sparad.") {
+  saveDataToLocal();
+  try {
+    await pushToServer();
+    setImportStatus(successMessage);
+  } catch (error) {
+    setImportStatus(`Sparat lokalt men inte till servern: ${error.message}`, true);
+  }
+}
+
 function exportData() {
   const payload = JSON.stringify(db, null, 2);
   const blob = new Blob([payload], { type: "application/json" });
@@ -390,19 +445,13 @@ async function importData(file) {
     const parsed = JSON.parse(text);
     const normalized = normalizeData(parsed);
 
-    if (
-      !normalized.suppliers.length ||
-      !normalized.brands.length ||
-      !normalized.categories.length ||
-      !normalized.rules.length
-    ) {
+    if (!isValidDataShape(normalized)) {
       throw new Error("JSON saknar nödvändig data (suppliers/brands/categories/rules).");
     }
 
     db = normalized;
-    saveData();
+    await persistData("Import klar: data uppdaterad från JSON-fil.");
     boot(true);
-    setImportStatus("Import klar: data uppdaterad från JSON-fil.");
   } catch (error) {
     setImportStatus(`Import misslyckades: ${error.message}`, true);
   }
@@ -413,7 +462,7 @@ function bindEvents() {
     document.getElementById(id).addEventListener("change", renderResult);
   });
 
-  document.getElementById("supplierForm").addEventListener("submit", (e) => {
+  document.getElementById("supplierForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     const data = new FormData(e.currentTarget);
     db.suppliers.push({
@@ -422,12 +471,12 @@ function bindEvents() {
       email: String(data.get("email") || "").trim(),
       notes: String(data.get("notes") || "").trim(),
     });
-    saveData();
+    await persistData("Leverantör sparad.");
     e.currentTarget.reset();
     boot(true);
   });
 
-  document.getElementById("brandForm").addEventListener("submit", (e) => {
+  document.getElementById("brandForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     const data = new FormData(e.currentTarget);
     const supplierId = String(data.get("supplierId") || "").trim();
@@ -441,24 +490,24 @@ function bindEvents() {
       name: String(data.get("name") || "").trim(),
       supplierId,
     });
-    saveData();
+    await persistData("Varumärke sparat.");
     e.currentTarget.reset();
     boot(true);
   });
 
-  document.getElementById("categoryForm").addEventListener("submit", (e) => {
+  document.getElementById("categoryForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     const data = new FormData(e.currentTarget);
     db.categories.push({
       id: uid("cat"),
       name: String(data.get("name") || "").trim(),
     });
-    saveData();
+    await persistData("Produktgrupp sparad.");
     e.currentTarget.reset();
     boot(true);
   });
 
-  document.getElementById("ruleForm").addEventListener("submit", (e) => {
+  document.getElementById("ruleForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     const data = new FormData(e.currentTarget);
     db.rules.push({
@@ -475,7 +524,7 @@ function bindEvents() {
       responsible: String(data.get("responsible") || "").trim(),
       sla: String(data.get("sla") || "").trim(),
     });
-    saveData();
+    await persistData("Regel sparad.");
     e.currentTarget.reset();
     boot(true);
   });
@@ -488,11 +537,10 @@ function bindEvents() {
     e.target.value = "";
   });
 
-  document.getElementById("resetData").addEventListener("click", () => {
+  document.getElementById("resetData").addEventListener("click", async () => {
     db = structuredClone(DEFAULT_DATA);
-    saveData();
+    await persistData("Exempeldata återställd.");
     boot(true);
-    setImportStatus("Exempeldata återställd.");
   });
 }
 
@@ -506,4 +554,16 @@ function boot(isRebind = false) {
   if (!isRebind) bindEvents();
 }
 
-boot();
+async function init() {
+  boot();
+
+  try {
+    await pullFromServer();
+    boot(true);
+    setImportStatus("Synkad med serverdata.");
+  } catch (error) {
+    setImportStatus(`Kunde inte synka serverdata: ${error.message}`, true);
+  }
+}
+
+init();
