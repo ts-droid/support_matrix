@@ -186,6 +186,130 @@ function toSafeCustomerType(value) {
   return ["private", "b2b", "all"].includes(value) ? value : "all";
 }
 
+function parseCsv(text) {
+  const rows = [];
+  let row = [];
+  let cell = "";
+  let inQuotes = false;
+
+  for (let i = 0; i < text.length; i += 1) {
+    const ch = text[i];
+    const next = text[i + 1];
+
+    if (ch === '"') {
+      if (inQuotes && next === '"') {
+        cell += '"';
+        i += 1;
+      } else {
+        inQuotes = !inQuotes;
+      }
+      continue;
+    }
+
+    if (ch === "," && !inQuotes) {
+      row.push(cell);
+      cell = "";
+      continue;
+    }
+
+    if ((ch === "\n" || ch === "\r") && !inQuotes) {
+      if (ch === "\r" && next === "\n") i += 1;
+      row.push(cell);
+      cell = "";
+      if (row.some((entry) => entry.trim() !== "")) rows.push(row);
+      row = [];
+      continue;
+    }
+
+    cell += ch;
+  }
+
+  row.push(cell);
+  if (row.some((entry) => entry.trim() !== "")) rows.push(row);
+  return rows;
+}
+
+function getCsvValue(raw, keys) {
+  for (const key of keys) {
+    if (Object.prototype.hasOwnProperty.call(raw, key) && String(raw[key]).trim()) {
+      return String(raw[key]).trim();
+    }
+  }
+  return "";
+}
+
+function parseList(value) {
+  return String(value || "")
+    .split(/[|;]/)
+    .map((part) => part.trim())
+    .filter(Boolean);
+}
+
+function splitInstructions(value) {
+  const input = String(value || "");
+  if (!input.trim()) return [];
+
+  if (input.includes("\n")) {
+    return input
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean);
+  }
+
+  return input
+    .split("||")
+    .map((line) => line.trim())
+    .filter(Boolean);
+}
+
+function upsertSupplier(db, name, email, notes) {
+  let supplier = findByName(db.suppliers, name);
+  if (!supplier) {
+    supplier = {
+      id: uid("sup"),
+      name,
+      email: email || "",
+      notes: notes || "",
+    };
+    db.suppliers.push(supplier);
+    return { supplier, created: true };
+  }
+
+  if (email) supplier.email = email;
+  if (notes) supplier.notes = notes;
+  return { supplier, created: false };
+}
+
+function upsertBrand(db, name, supplierId) {
+  let brand = findByName(db.brands, name);
+  if (!brand) {
+    brand = {
+      id: uid("bra"),
+      name,
+      supplierId,
+    };
+    db.brands.push(brand);
+    return { brand, created: true };
+  }
+
+  brand.supplierId = supplierId;
+  return { brand, created: false };
+}
+
+function upsertCategory(db, name) {
+  let category = findByName(db.categories, name);
+  if (!category) {
+    category = {
+      id: uid("cat"),
+      name,
+    };
+    db.categories.push(category);
+    return { category, created: true };
+  }
+
+  return { category, created: false };
+}
+
 app.use(express.json({ limit: "1mb" }));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(__dirname));
@@ -238,40 +362,9 @@ app.post("/api/intake", (req, res) => {
 
   const db = readData();
 
-  let supplier = findByName(db.suppliers, supplierName);
-  if (!supplier) {
-    supplier = {
-      id: uid("sup"),
-      name: supplierName,
-      email: supplierEmail,
-      notes: supplierNotes,
-    };
-    db.suppliers.push(supplier);
-  } else {
-    if (supplierEmail) supplier.email = supplierEmail;
-    if (supplierNotes) supplier.notes = supplierNotes;
-  }
-
-  let brand = findByName(db.brands, brandName);
-  if (!brand) {
-    brand = {
-      id: uid("bra"),
-      name: brandName,
-      supplierId: supplier.id,
-    };
-    db.brands.push(brand);
-  } else {
-    brand.supplierId = supplier.id;
-  }
-
-  let category = findByName(db.categories, categoryName);
-  if (!category) {
-    category = {
-      id: uid("cat"),
-      name: categoryName,
-    };
-    db.categories.push(category);
-  }
+  const { supplier } = upsertSupplier(db, supplierName, supplierEmail, supplierNotes);
+  const { brand } = upsertBrand(db, brandName, supplier.id);
+  const { category } = upsertCategory(db, categoryName);
 
   db.rules.push({
     id: uid("rule"),
@@ -294,6 +387,100 @@ app.post("/api/intake", (req, res) => {
     category,
   });
 });
+
+app.post(
+  "/api/intake/csv",
+  express.text({ type: ["text/csv", "application/csv", "text/plain"], limit: "2mb" }),
+  (req, res) => {
+    const csvText = String(req.body || "").trim();
+    if (!csvText) {
+      res.status(400).json({ error: "CSV payload is empty." });
+      return;
+    }
+
+    const matrix = parseCsv(csvText);
+    if (matrix.length < 2) {
+      res.status(400).json({ error: "CSV must include headers and at least one data row." });
+      return;
+    }
+
+    const headers = matrix[0].map((h) => String(h || "").trim());
+    const rows = matrix.slice(1);
+    const db = readData();
+
+    let createdSuppliers = 0;
+    let createdBrands = 0;
+    let createdCategories = 0;
+    let createdRules = 0;
+    let skippedRows = 0;
+
+    for (const row of rows) {
+      const raw = {};
+      headers.forEach((key, index) => {
+        raw[key] = String(row[index] || "").trim();
+      });
+
+      const supplierName = getCsvValue(raw, ["supplierName", "supplier", "vendor"]);
+      const supplierEmail = getCsvValue(raw, ["supplierEmail", "supplier_email", "vendorEmail"]);
+      const supplierNotes = getCsvValue(raw, ["supplierNotes", "supplier_notes", "notes"]);
+      const brandName = getCsvValue(raw, ["brandName", "brand"]);
+      const headline = getCsvValue(raw, ["headline", "title"]);
+      const responsible = getCsvValue(raw, ["responsible", "owner"]);
+      const sla = getCsvValue(raw, ["sla"]);
+      const caseType = toSafeCaseType(getCsvValue(raw, ["caseType", "case_type"]) || "all");
+      const customerType = toSafeCustomerType(
+        getCsvValue(raw, ["customerType", "customer_type"]) || "all",
+      );
+      const instructions = splitInstructions(getCsvValue(raw, ["instructions", "steps"]));
+
+      const categoryName = getCsvValue(raw, ["categoryName", "category"]);
+      const categoryNames = parseList(getCsvValue(raw, ["categoryNames", "categories"]));
+      const allCategories = categoryNames.length
+        ? categoryNames
+        : categoryName
+          ? [categoryName]
+          : [];
+
+      if (!supplierName || !brandName || !headline || !instructions.length || !allCategories.length) {
+        skippedRows += 1;
+        continue;
+      }
+
+      const supplierResult = upsertSupplier(db, supplierName, supplierEmail, supplierNotes);
+      const brandResult = upsertBrand(db, brandName, supplierResult.supplier.id);
+      if (supplierResult.created) createdSuppliers += 1;
+      if (brandResult.created) createdBrands += 1;
+
+      for (const category of allCategories) {
+        const categoryResult = upsertCategory(db, category);
+        if (categoryResult.created) createdCategories += 1;
+
+        db.rules.push({
+          id: uid("rule"),
+          caseType,
+          customerType,
+          brandId: brandResult.brand.id,
+          categoryId: categoryResult.category.id,
+          headline,
+          instructions,
+          responsible,
+          sla,
+        });
+        createdRules += 1;
+      }
+    }
+
+    writeData(db);
+    res.status(201).json({
+      message: "CSV import completed.",
+      createdSuppliers,
+      createdBrands,
+      createdCategories,
+      createdRules,
+      skippedRows,
+    });
+  },
+);
 
 app.get("/", (_req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));

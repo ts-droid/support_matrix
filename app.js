@@ -437,6 +437,22 @@ function exportData() {
   setImportStatus("Export klar: JSON-filen laddades ner.");
 }
 
+function downloadCsvTemplate() {
+  const header =
+    "supplierName,supplierEmail,supplierNotes,brandName,categoryNames,caseType,customerType,headline,instructions,responsible,sla";
+  const sample =
+    '"Nordic Supply AB","support@nordicsupply.se","Returns via portal","AeroHome","Robotdammsugare|Skarm","doa","private","DOA replacement process","Validate defect||Create return label||Ship replacement","1st line + Warehouse","Response 4h / replacement 24h"';
+  const payload = `${header}\n${sample}\n`;
+  const blob = new Blob([payload], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "support-matrix-template.csv";
+  a.click();
+  URL.revokeObjectURL(url);
+  setImportStatus("CSV-mall nedladdad.");
+}
+
 async function importData(file) {
   if (!file) return;
 
@@ -454,6 +470,36 @@ async function importData(file) {
     boot(true);
   } catch (error) {
     setImportStatus(`Import misslyckades: ${error.message}`, true);
+  }
+}
+
+async function importCsv(file) {
+  if (!file) return;
+
+  try {
+    const csvText = await file.text();
+    if (!csvText.trim()) {
+      throw new Error("CSV-filen är tom.");
+    }
+
+    const response = await fetch("/api/intake/csv", {
+      method: "POST",
+      headers: { "Content-Type": "text/csv" },
+      body: csvText,
+    });
+
+    const payload = await response.json();
+    if (!response.ok) {
+      throw new Error(payload.error || `CSV import failed (${response.status})`);
+    }
+
+    await pullFromServer();
+    boot(true);
+    setImportStatus(
+      `CSV importerad: ${payload.createdRules} regler, ${payload.createdSuppliers} leverantorer, ${payload.createdBrands} varumarken, ${payload.createdCategories} kategorier. Skippade rader: ${payload.skippedRows}.`,
+    );
+  } catch (error) {
+    setImportStatus(`CSV-import misslyckades: ${error.message}`, true);
   }
 }
 
@@ -530,10 +576,17 @@ function bindEvents() {
   });
 
   document.getElementById("exportJson").addEventListener("click", exportData);
+  document.getElementById("downloadCsvTemplate").addEventListener("click", downloadCsvTemplate);
 
   document.getElementById("importJson").addEventListener("change", async (e) => {
     const file = e.target.files?.[0];
     await importData(file);
+    e.target.value = "";
+  });
+
+  document.getElementById("importCsv").addEventListener("change", async (e) => {
+    const file = e.target.files?.[0];
+    await importCsv(file);
     e.target.value = "";
   });
 
