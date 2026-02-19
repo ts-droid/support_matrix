@@ -1,12 +1,12 @@
 :root {
-  --bg: #f3efe5;
-  --ink: #10151a;
-  --ink-muted: #4f5a66;
-  --accent: #ff6a3d;
-  --accent-2: #0f766e;
-  --surface: #fffefb;
-  --line: #d6cfbf;
-  --shadow: 0 14px 45px rgba(16, 21, 26, 0.12);
+  --bg: #f7f7f7;
+  --ink: #000000;
+  --ink-muted: #666666;
+  --accent: #df3314;
+  --accent-2: #95220d;
+  --surface: #ffffff;
+  --line: #e2e2e2;
+  --shadow: 0 10px 28px rgba(0, 0, 0, 0.06);
 }
 
 * {
@@ -15,10 +15,9 @@
 
 body {
   margin: 0;
-  font-family: "Space Grotesk", sans-serif;
+  font-family: "Avenir Next", Avenir, "Open Sans", Helvetica, Arial, sans-serif;
   color: var(--ink);
-  background: radial-gradient(circle at 10% 5%, #ffd9c8, transparent 40%),
-    radial-gradient(circle at 95% 10%, #bcf1ec, transparent 35%), var(--bg);
+  background: var(--bg);
   min-height: 100vh;
 }
 
@@ -26,7 +25,7 @@ body {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  background: linear-gradient(120deg, transparent 30%, rgba(255, 106, 61, 0.06), transparent 70%);
+  background: linear-gradient(180deg, rgba(223, 51, 20, 0.04), transparent 26%);
 }
 
 .layout {
@@ -39,8 +38,8 @@ body {
 .hero {
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 22px;
-  padding: 1.4rem;
+  border-radius: 14px;
+  padding: 1.5rem;
   box-shadow: var(--shadow);
   animation: rise 450ms ease;
 }
@@ -48,15 +47,16 @@ body {
 .kicker {
   margin: 0;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-size: 0.75rem;
-  color: var(--accent-2);
+  letter-spacing: 0.08em;
+  font-size: 0.72rem;
+  color: var(--accent);
   font-weight: 700;
 }
 
 .hero h1 {
   margin: 0.2rem 0 0.6rem;
-  font-size: clamp(1.4rem, 3vw, 2.2rem);
+  font-size: clamp(1.45rem, 2.8vw, 2.1rem);
+  font-weight: 700;
 }
 
 .hero p {
@@ -67,7 +67,7 @@ body {
 .card {
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 22px;
+  border-radius: 14px;
   padding: 1rem;
   box-shadow: var(--shadow);
   animation: rise 600ms ease;
@@ -84,6 +84,8 @@ body {
 h2,
 h3 {
   margin: 0;
+  font-family: "Avenir Next", Avenir, "Open Sans", Helvetica, Arial, sans-serif;
+  letter-spacing: -0.01em;
 }
 
 .flow-grid,
@@ -112,7 +114,7 @@ input,
 textarea {
   width: 100%;
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: 10px;
   padding: 0.62rem 0.7rem;
   background: #fff;
 }
@@ -124,7 +126,7 @@ textarea {
 
 button {
   border: none;
-  border-radius: 12px;
+  border-radius: 10px;
   padding: 0.62rem 0.9rem;
   background: var(--accent);
   color: #fff;
@@ -177,8 +179,8 @@ button:hover {
 
 .result {
   margin-top: 1rem;
-  border: 1px dashed var(--line);
-  border-radius: 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
   padding: 0.9rem;
   background: #fff;
 }
@@ -191,7 +193,7 @@ button:hover {
 .flow-visual {
   margin-top: 1rem;
   border: 1px solid var(--line);
-  border-radius: 16px;
+  border-radius: 12px;
   background: #fff;
   padding: 0.9rem;
 }
@@ -204,9 +206,9 @@ button:hover {
 
 .flow-step {
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: 10px;
   padding: 0.62rem 0.7rem;
-  background: #fffef7;
+  background: #ffffff;
   position: relative;
 }
 
@@ -229,7 +231,7 @@ button:hover {
   font-size: 0.72rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--accent-2);
+  color: var(--accent);
   margin-bottom: 0.22rem;
   font-weight: 700;
 }
@@ -249,7 +251,7 @@ button:hover {
 
 .admin-form {
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: 12px;
   padding: 0.75rem;
   display: grid;
   gap: 0.55rem;
@@ -269,7 +271,7 @@ button:hover {
 
 .tables > div {
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: 12px;
   padding: 0.75rem;
   background: #fff;
 }
