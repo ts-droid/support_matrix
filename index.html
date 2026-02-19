@@ -16,122 +16,129 @@
     <div class="ambient"></div>
     <main class="layout">
       <header class="hero">
-        <p class="kicker">Support Matrix</p>
-        <h1>Beslutsstöd för supportflöden</h1>
-        <p>
-          Välj ärendetyp, kundtyp, varumärke och produktgrupp för att få rekommenderad
-          hantering. Uppdatera allt via Admin-läget.
+        <div class="hero-top">
+          <p class="kicker">Support Matrix</p>
+          <div class="lang-switch" role="group" aria-label="Language switch">
+            <button type="button" id="langSv" class="ghost lang-btn">🇸🇪 Svenska</button>
+            <button type="button" id="langEn" class="ghost lang-btn">🇬🇧 English</button>
+          </div>
+        </div>
+        <h1 data-i18n="heroTitle">Beslutsstöd för supportflöden</h1>
+        <p data-i18n="heroDesc">
+          Välj ärendetyp, kundtyp, varumärke och produktgrupp för att få rekommenderad hantering.
+          Uppdatera allt via Admin-läget.
         </p>
       </header>
 
       <section class="card" aria-labelledby="flow-title">
         <div class="section-head">
-          <h2 id="flow-title">Supportflöde</h2>
+          <h2 id="flow-title" data-i18n="flowTitle">Supportflöde</h2>
         </div>
 
         <div class="flow-grid">
           <label>
-            Ärendetyp
+            <span data-i18n="labelCaseType">Ärendetyp</span>
             <select id="caseType"></select>
           </label>
           <label>
-            Kundtyp
+            <span data-i18n="labelCustomerType">Kundtyp</span>
             <select id="customerType"></select>
           </label>
           <label>
-            Varumärke
+            <span data-i18n="labelBrand">Varumärke</span>
             <select id="brand"></select>
           </label>
           <label>
-            Produktgrupp
+            <span data-i18n="labelCategory">Produktgrupp</span>
             <select id="category"></select>
           </label>
         </div>
 
         <article class="result" id="result">
-          <h3>Rekommenderad hantering</h3>
-          <p>Gör dina val för att få instruktion.</p>
+          <h3 data-i18n="resultTitle">Rekommenderad hantering</h3>
+          <p data-i18n="resultPrompt">Gör dina val för att få instruktion.</p>
         </article>
 
         <article class="flow-visual" aria-labelledby="flow-visual-title">
-          <h3 id="flow-visual-title">Grafiskt flöde</h3>
+          <h3 id="flow-visual-title" data-i18n="flowVisualTitle">Grafiskt flöde</h3>
           <div id="flowChart" class="flow-chart"></div>
         </article>
       </section>
 
       <section class="card" aria-labelledby="admin-title">
         <div class="section-head">
-          <h2 id="admin-title">Admin</h2>
+          <h2 id="admin-title" data-i18n="adminTitle">Admin</h2>
           <div class="admin-actions">
-            <a class="ghost action-link" href="/intake" target="_blank" rel="noreferrer">Open Brand Intake Form</a>
-            <button id="downloadCsvTemplate" class="ghost">CSV-mall</button>
-            <label class="ghost file-import" for="importCsv">Importera CSV</label>
+            <a class="ghost action-link" href="/intake" target="_blank" rel="noreferrer" data-i18n="openIntakeForm">Open Brand Intake Form</a>
+            <button id="downloadCsvTemplate" class="ghost" data-i18n="csvTemplateBtn">CSV-mall</button>
+            <label class="ghost file-import" for="importCsv" data-i18n="importCsvBtn">Importera CSV</label>
             <input id="importCsv" type="file" accept=".csv,text/csv" />
-            <button id="exportJson" class="ghost">Exportera JSON</button>
-            <label class="ghost file-import" for="importJson">Importera JSON</label>
+            <button id="exportJson" class="ghost" data-i18n="exportJsonBtn">Exportera JSON</button>
+            <label class="ghost file-import" for="importJson" data-i18n="importJsonBtn">Importera JSON</label>
             <input id="importJson" type="file" accept="application/json" />
-            <button id="resetData" class="ghost">Återställ exempeldata</button>
+            <button id="resetData" class="ghost" data-i18n="resetBtn">Återställ exempeldata</button>
           </div>
         </div>
         <p id="importStatus" class="status-line" aria-live="polite"></p>
 
         <div class="admin-grid">
           <form id="supplierForm" class="admin-form">
-            <h3>Lägg till leverantör</h3>
-            <input name="name" placeholder="Namn" required />
-            <input name="email" placeholder="E-post" />
-            <textarea name="notes" placeholder="Notering"></textarea>
-            <button type="submit">Spara leverantör</button>
+            <h3 data-i18n="supplierFormTitle">Lägg till leverantör</h3>
+            <input name="name" data-i18n-placeholder="phName" placeholder="Namn" required />
+            <input name="email" data-i18n-placeholder="phEmail" placeholder="E-post" />
+            <textarea name="notes" data-i18n-placeholder="phNotes" placeholder="Notering"></textarea>
+            <button type="submit" data-i18n="saveSupplierBtn">Spara leverantör</button>
           </form>
 
           <form id="brandForm" class="admin-form">
-            <h3>Lägg till varumärke</h3>
-            <input name="name" placeholder="Varumärke" required />
+            <h3 data-i18n="brandFormTitle">Lägg till varumärke</h3>
+            <input name="name" data-i18n-placeholder="phBrand" placeholder="Varumärke" required />
             <select name="supplierId" id="brandSupplier" required></select>
-            <button type="submit">Spara varumärke</button>
+            <button type="submit" data-i18n="saveBrandBtn">Spara varumärke</button>
           </form>
 
           <form id="categoryForm" class="admin-form">
-            <h3>Lägg till produktgrupp</h3>
-            <input name="name" placeholder="Produktgrupp" required />
-            <button type="submit">Spara produktgrupp</button>
+            <h3 data-i18n="categoryFormTitle">Lägg till produktgrupp</h3>
+            <input name="name" data-i18n-placeholder="phCategory" placeholder="Produktgrupp" required />
+            <button type="submit" data-i18n="saveCategoryBtn">Spara produktgrupp</button>
           </form>
 
           <form id="ruleForm" class="admin-form wide">
-            <h3>Lägg till hanteringsregel</h3>
+            <h3 data-i18n="ruleFormTitle">Lägg till hanteringsregel</h3>
             <div class="rule-grid">
               <select name="caseType" id="ruleCaseType" required></select>
               <select name="customerType" id="ruleCustomerType" required></select>
               <select name="brandId" id="ruleBrand" required></select>
               <select name="categoryId" id="ruleCategory" required></select>
             </div>
-            <input name="headline" placeholder="Rubrik / kort sammanfattning" required />
+            <input name="headline" data-i18n-placeholder="phHeadline" placeholder="Rubrik / kort sammanfattning" required />
             <textarea
               name="instructions"
+              data-i18n-placeholder="phInstructions"
               placeholder="Steg för hantering (en rad per steg)"
               required
             ></textarea>
-            <input name="responsible" placeholder="Ansvarig (ex: 1st line / Leverantör)" />
-            <input name="sla" placeholder="SLA (ex: svar inom 24h)" />
-            <button type="submit">Spara regel</button>
+            <input name="responsible" data-i18n-placeholder="phResponsible" placeholder="Ansvarig (ex: 1st line / Leverantör)" />
+            <input name="sla" data-i18n-placeholder="phSla" placeholder="SLA (ex: svar inom 24h)" />
+            <button type="submit" data-i18n="saveRuleBtn">Spara regel</button>
           </form>
         </div>
 
         <div class="tables">
           <div>
-            <h3>Leverantörer</h3>
+            <h3 data-i18n="suppliersListTitle">Leverantörer</h3>
             <ul id="supplierList"></ul>
           </div>
           <div>
-            <h3>Varumärken</h3>
+            <h3 data-i18n="brandsListTitle">Varumärken</h3>
             <ul id="brandList"></ul>
           </div>
           <div>
-            <h3>Produktgrupper</h3>
+            <h3 data-i18n="categoriesListTitle">Produktgrupper</h3>
             <ul id="categoryList"></ul>
           </div>
           <div>
-            <h3>Regler</h3>
+            <h3 data-i18n="rulesListTitle">Regler</h3>
             <ul id="ruleList"></ul>
           </div>
         </div>

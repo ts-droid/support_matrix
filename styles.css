@@ -44,6 +44,13 @@ body {
   animation: rise 450ms ease;
 }
 
+.hero-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
 .kicker {
   margin: 0;
   text-transform: uppercase;
@@ -51,6 +58,23 @@ body {
   font-size: 0.72rem;
   color: var(--accent);
   font-weight: 700;
+}
+
+.lang-switch {
+  display: inline-flex;
+  gap: 0.4rem;
+}
+
+.lang-btn {
+  padding: 0.42rem 0.62rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.lang-btn.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
 }
 
 .hero h1 {

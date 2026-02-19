@@ -43,6 +43,34 @@
         padding: 1rem;
       }
 
+      .top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+      }
+
+      .lang-switch {
+        display: inline-flex;
+        gap: 0.4rem;
+      }
+
+      .lang-btn {
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: #fff;
+        color: #000;
+        padding: 0.45rem 0.65rem;
+        font-size: 0.82rem;
+        cursor: pointer;
+      }
+
+      .lang-btn.active {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #fff;
+      }
+
       h1,
       h2 {
         margin: 0;
@@ -131,94 +159,227 @@
   <body>
     <main>
       <section class="card">
-        <h1>Brand Intake Form</h1>
-        <p>
+        <div class="top">
+          <h1 data-i18n="title">Brand Intake Form</h1>
+          <div class="lang-switch" role="group" aria-label="Language switch">
+            <button type="button" id="langSv" class="lang-btn">🇸🇪 Svenska</button>
+            <button type="button" id="langEn" class="lang-btn">🇬🇧 English</button>
+          </div>
+        </div>
+        <p data-i18n="intro">
           Please provide the required support handling details. Once submitted, the data is automatically
           synced into our Support Matrix decision flow.
         </p>
 
-        <h2 style="margin-top: 1rem">Bulk CSV Import</h2>
-        <p>
-          For multiple flows at once, use a CSV file. One row can include multiple categories
-          in <strong>categoryNames</strong> separated by <code>|</code> (example:
-          <code>Laptop|Monitor|Docking</code>).
-        </p>
+        <h2 style="margin-top: 1rem" data-i18n="csvTitle">Bulk CSV Import</h2>
+        <p data-i18n="csvDesc"></p>
         <div class="actions">
-          <button type="button" id="downloadCsvTemplate" class="ghost">Download CSV Template</button>
-          <label class="ghost" for="csvFile" style="display: inline-flex; align-items: center; cursor: pointer; border-radius: 10px; padding: 0.7rem 1rem;">Upload CSV</label>
+          <button type="button" id="downloadCsvTemplate" class="ghost" data-i18n="downloadCsv">Download CSV Template</button>
+          <label class="ghost" for="csvFile" style="display: inline-flex; align-items: center; cursor: pointer; border-radius: 10px; padding: 0.7rem 1rem;" data-i18n="uploadCsv">Upload CSV</label>
           <input id="csvFile" type="file" accept=".csv,text/csv" />
         </div>
-        <p class="hint">CSV columns: supplierName, supplierEmail, supplierNotes, brandName, categoryNames, caseType, customerType, headline, instructions, responsible, sla</p>
+        <p class="hint" data-i18n="csvHint"></p>
         <p class="status" id="csvStatus" aria-live="polite"></p>
 
         <form id="intakeForm">
           <div class="grid">
             <label>
-              Supplier name *
+              <span data-i18n="supplierName">Supplier name *</span>
               <input name="supplierName" required />
             </label>
             <label>
-              Supplier contact email
+              <span data-i18n="supplierEmail">Supplier contact email</span>
               <input name="supplierEmail" type="email" />
             </label>
             <label>
-              Brand name *
+              <span data-i18n="brandName">Brand name *</span>
               <input name="brandName" required />
             </label>
             <label>
-              Product category *
+              <span data-i18n="categoryName">Product category *</span>
               <input name="categoryName" required />
             </label>
             <label>
-              Case type
-              <select name="caseType">
-                <option value="all">All case types</option>
-                <option value="doa">DOA</option>
-                <option value="warranty">Warranty after usage</option>
-              </select>
+              <span data-i18n="caseType">Case type</span>
+              <select name="caseType" id="caseTypeSelect"></select>
             </label>
             <label>
-              Customer type
-              <select name="customerType">
-                <option value="all">All customer types</option>
-                <option value="private">Private</option>
-                <option value="b2b">Business to business</option>
-              </select>
+              <span data-i18n="customerType">Customer type</span>
+              <select name="customerType" id="customerTypeSelect"></select>
             </label>
             <label>
-              Handling headline *
-              <input name="headline" placeholder="Example: DOA replacement via supplier RMA" required />
+              <span data-i18n="headline">Handling headline *</span>
+              <input name="headline" id="headlineInput" required />
             </label>
             <label>
-              Responsible team
-              <input name="responsible" placeholder="Example: First line + Supplier" />
+              <span data-i18n="responsible">Responsible team</span>
+              <input name="responsible" id="responsibleInput" />
             </label>
             <label>
-              SLA
-              <input name="sla" placeholder="Example: Response in 24h" />
+              <span data-i18n="sla">SLA</span>
+              <input name="sla" id="slaInput" />
             </label>
           </div>
 
           <label>
-            Handling instructions * (one line per step)
+            <span data-i18n="instructions">Handling instructions * (one line per step)</span>
             <textarea name="instructions" required></textarea>
           </label>
 
           <label>
-            Supplier notes
-            <textarea name="supplierNotes" placeholder="Optional notes for return logistics or conditions"></textarea>
+            <span data-i18n="supplierNotes">Supplier notes</span>
+            <textarea name="supplierNotes" id="supplierNotesInput"></textarea>
           </label>
 
-          <button type="submit">Submit Intake</button>
+          <button type="submit" data-i18n="submitBtn">Submit Intake</button>
           <p class="status" id="status" aria-live="polite"></p>
         </form>
       </section>
     </main>
 
     <script>
+      const LANG_KEY = "support-matrix-lang";
+      const I18N = {
+        en: {
+          title: "Brand Intake Form",
+          intro:
+            "Please provide the required support handling details. Once submitted, the data is automatically synced into our Support Matrix decision flow.",
+          csvTitle: "Bulk CSV Import",
+          csvDesc:
+            "For multiple flows at once, use a CSV file. One row can include multiple categories in categoryNames separated by | (example: Laptop|Monitor|Docking).",
+          csvHint:
+            "CSV columns: supplierName, supplierEmail, supplierNotes, brandName, categoryNames, caseType, customerType, headline, instructions, responsible, sla",
+          downloadCsv: "Download CSV Template",
+          uploadCsv: "Upload CSV",
+          supplierName: "Supplier name *",
+          supplierEmail: "Supplier contact email",
+          brandName: "Brand name *",
+          categoryName: "Product category *",
+          caseType: "Case type",
+          customerType: "Customer type",
+          headline: "Handling headline *",
+          responsible: "Responsible team",
+          sla: "SLA",
+          instructions: "Handling instructions * (one line per step)",
+          supplierNotes: "Supplier notes",
+          submitBtn: "Submit Intake",
+          caseOptions: {
+            all: "All case types",
+            doa: "DOA",
+            warranty: "Warranty after usage",
+          },
+          customerOptions: {
+            all: "All customer types",
+            private: "Private",
+            b2b: "Business to business",
+          },
+          phHeadline: "Example: DOA replacement via supplier RMA",
+          phResponsible: "Example: First line + Supplier",
+          phSla: "Example: Response in 24h",
+          phSupplierNotes: "Optional notes for return logistics or conditions",
+          submitting: "Submitting...",
+          submitOk: "Submitted successfully. Your data is now available in the Support Matrix.",
+          submitFail: "Could not submit: {error}",
+          csvTemplateDone: "CSV template downloaded.",
+          csvUploading: "Uploading CSV...",
+          csvOk:
+            "CSV imported: {rules} rules, {suppliers} suppliers, {brands} brands, {categories} categories. Skipped rows: {skipped}.",
+          csvFail: "Could not import CSV: {error}",
+        },
+        sv: {
+          title: "Varumärkesformulär",
+          intro:
+            "Fyll i nödvändig information för supporthantering. När formuläret skickas in synkas datan automatiskt till vårt Support Matrix-flöde.",
+          csvTitle: "CSV massimport",
+          csvDesc:
+            "För flera flöden samtidigt, använd en CSV-fil. En rad kan innehålla flera kategorier i categoryNames separerat med | (exempel: Laptop|Monitor|Docking).",
+          csvHint:
+            "CSV-kolumner: supplierName, supplierEmail, supplierNotes, brandName, categoryNames, caseType, customerType, headline, instructions, responsible, sla",
+          downloadCsv: "Ladda ner CSV-mall",
+          uploadCsv: "Ladda upp CSV",
+          supplierName: "Leverantörsnamn *",
+          supplierEmail: "Leverantörens e-post",
+          brandName: "Varumärke *",
+          categoryName: "Produktkategori *",
+          caseType: "Ärendetyp",
+          customerType: "Kundtyp",
+          headline: "Rubrik för hantering *",
+          responsible: "Ansvarigt team",
+          sla: "SLA",
+          instructions: "Instruktioner * (en rad per steg)",
+          supplierNotes: "Leverantörsnoteringar",
+          submitBtn: "Skicka formulär",
+          caseOptions: {
+            all: "Alla ärendetyper",
+            doa: "DOA",
+            warranty: "Garanti efter användning",
+          },
+          customerOptions: {
+            all: "Alla kundtyper",
+            private: "Privat",
+            b2b: "Business to business",
+          },
+          phHeadline: "Exempel: DOA-utbyte via leverantörens RMA",
+          phResponsible: "Exempel: Första linjen + Leverantör",
+          phSla: "Exempel: Svar inom 24h",
+          phSupplierNotes: "Valfria noteringar för returlogistik eller villkor",
+          submitting: "Skickar...",
+          submitOk: "Inskickat. Datan finns nu tillgänglig i Support Matrix.",
+          submitFail: "Kunde inte skicka: {error}",
+          csvTemplateDone: "CSV-mall nedladdad.",
+          csvUploading: "Laddar upp CSV...",
+          csvOk:
+            "CSV importerad: {rules} regler, {suppliers} leverantörer, {brands} varumärken, {categories} kategorier. Skippade rader: {skipped}.",
+          csvFail: "Kunde inte importera CSV: {error}",
+        },
+      };
+
+      let currentLang = localStorage.getItem(LANG_KEY) === "sv" ? "sv" : "en";
+
       const form = document.getElementById("intakeForm");
       const statusEl = document.getElementById("status");
       const csvStatusEl = document.getElementById("csvStatus");
+
+      function t(key) {
+        return I18N[currentLang][key] || key;
+      }
+
+      function fmt(key, vars = {}) {
+        return Object.entries(vars).reduce((acc, [name, value]) => acc.replaceAll(`{${name}}`, String(value)), t(key));
+      }
+
+      function optionHtml(value, label) {
+        return `<option value="${value}">${label}</option>`;
+      }
+
+      function applyLang() {
+        document.documentElement.lang = currentLang;
+        document.querySelectorAll("[data-i18n]").forEach((el) => {
+          el.textContent = t(el.dataset.i18n);
+        });
+
+        document.getElementById("headlineInput").placeholder = t("phHeadline");
+        document.getElementById("responsibleInput").placeholder = t("phResponsible");
+        document.getElementById("slaInput").placeholder = t("phSla");
+        document.getElementById("supplierNotesInput").placeholder = t("phSupplierNotes");
+
+        document.getElementById("caseTypeSelect").innerHTML = ["all", "doa", "warranty"]
+          .map((id) => optionHtml(id, I18N[currentLang].caseOptions[id]))
+          .join("");
+
+        document.getElementById("customerTypeSelect").innerHTML = ["all", "private", "b2b"]
+          .map((id) => optionHtml(id, I18N[currentLang].customerOptions[id]))
+          .join("");
+
+        document.getElementById("langSv").classList.toggle("active", currentLang === "sv");
+        document.getElementById("langEn").classList.toggle("active", currentLang === "en");
+      }
+
+      function setLang(lang) {
+        currentLang = lang === "sv" ? "sv" : "en";
+        localStorage.setItem(LANG_KEY, currentLang);
+        applyLang();
+      }
 
       function downloadCsvTemplate() {
         const header =
@@ -233,13 +394,13 @@
         a.download = "support-matrix-template.csv";
         a.click();
         URL.revokeObjectURL(url);
-        csvStatusEl.textContent = "CSV template downloaded.";
+        csvStatusEl.textContent = t("csvTemplateDone");
         csvStatusEl.style.color = "#4f5a66";
       }
 
       form.addEventListener("submit", async (event) => {
         event.preventDefault();
-        statusEl.textContent = "Submitting...";
+        statusEl.textContent = t("submitting");
         statusEl.style.color = "#4f5a66";
 
         const formData = new FormData(form);
@@ -253,15 +414,14 @@
           });
 
           const result = await response.json();
-          if (!response.ok) {
-            throw new Error(result.error || "Submission failed");
-          }
+          if (!response.ok) throw new Error(result.error || "Submission failed");
 
-          statusEl.textContent = "Submitted successfully. Your data is now available in the Support Matrix.";
+          statusEl.textContent = t("submitOk");
           statusEl.style.color = "#067647";
           form.reset();
+          applyLang();
         } catch (error) {
-          statusEl.textContent = `Could not submit: ${error.message}`;
+          statusEl.textContent = fmt("submitFail", { error: error.message });
           statusEl.style.color = "#b42318";
         }
       });
@@ -272,7 +432,7 @@
         const file = event.target.files?.[0];
         if (!file) return;
 
-        csvStatusEl.textContent = "Uploading CSV...";
+        csvStatusEl.textContent = t("csvUploading");
         csvStatusEl.style.color = "#4f5a66";
 
         try {
@@ -284,19 +444,28 @@
           });
 
           const result = await response.json();
-          if (!response.ok) {
-            throw new Error(result.error || "CSV import failed");
-          }
+          if (!response.ok) throw new Error(result.error || "CSV import failed");
 
-          csvStatusEl.textContent = `CSV imported: ${result.createdRules} rules, ${result.createdSuppliers} suppliers, ${result.createdBrands} brands, ${result.createdCategories} categories. Skipped rows: ${result.skippedRows}.`;
+          csvStatusEl.textContent = fmt("csvOk", {
+            rules: result.createdRules,
+            suppliers: result.createdSuppliers,
+            brands: result.createdBrands,
+            categories: result.createdCategories,
+            skipped: result.skippedRows,
+          });
           csvStatusEl.style.color = "#067647";
         } catch (error) {
-          csvStatusEl.textContent = `Could not import CSV: ${error.message}`;
+          csvStatusEl.textContent = fmt("csvFail", { error: error.message });
           csvStatusEl.style.color = "#b42318";
         } finally {
           event.target.value = "";
         }
       });
+
+      document.getElementById("langSv").addEventListener("click", () => setLang("sv"));
+      document.getElementById("langEn").addEventListener("click", () => setLang("en"));
+
+      applyLang();
     </script>
   </body>
 </html>

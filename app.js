@@ -1,16 +1,193 @@
 const STORAGE_KEY = "support-matrix-v1";
+const LANG_KEY = "support-matrix-lang";
 
-const CASE_TYPES = [
-  { id: "all", label: "Alla ärendetyper" },
-  { id: "doa", label: "DOA (dead on arrival)" },
-  { id: "warranty", label: "Garanti efter användning" },
-];
+const CASE_TYPES = ["all", "doa", "warranty"];
+const CUSTOMER_TYPES = ["all", "private", "b2b"];
 
-const CUSTOMER_TYPES = [
-  { id: "all", label: "Alla kundtyper" },
-  { id: "private", label: "Privat" },
-  { id: "b2b", label: "Business to business" },
-];
+const I18N = {
+  sv: {
+    heroTitle: "Beslutsstöd för supportflöden",
+    heroDesc:
+      "Välj ärendetyp, kundtyp, varumärke och produktgrupp för att få rekommenderad hantering. Uppdatera allt via Admin-läget.",
+    flowTitle: "Supportflöde",
+    labelCaseType: "Ärendetyp",
+    labelCustomerType: "Kundtyp",
+    labelBrand: "Varumärke",
+    labelCategory: "Produktgrupp",
+    resultTitle: "Rekommenderad hantering",
+    resultPrompt: "Gör dina val för att få instruktion.",
+    flowVisualTitle: "Grafiskt flöde",
+    adminTitle: "Admin",
+    openIntakeForm: "Öppna varumärkesformulär",
+    csvTemplateBtn: "CSV-mall",
+    importCsvBtn: "Importera CSV",
+    exportJsonBtn: "Exportera JSON",
+    importJsonBtn: "Importera JSON",
+    resetBtn: "Återställ exempeldata",
+    supplierFormTitle: "Lägg till leverantör",
+    brandFormTitle: "Lägg till varumärke",
+    categoryFormTitle: "Lägg till produktgrupp",
+    ruleFormTitle: "Lägg till hanteringsregel",
+    saveSupplierBtn: "Spara leverantör",
+    saveBrandBtn: "Spara varumärke",
+    saveCategoryBtn: "Spara produktgrupp",
+    saveRuleBtn: "Spara regel",
+    suppliersListTitle: "Leverantörer",
+    brandsListTitle: "Varumärken",
+    categoriesListTitle: "Produktgrupper",
+    rulesListTitle: "Regler",
+    phName: "Namn",
+    phEmail: "E-post",
+    phNotes: "Notering",
+    phBrand: "Varumärke",
+    phCategory: "Produktgrupp",
+    phHeadline: "Rubrik / kort sammanfattning",
+    phInstructions: "Steg för hantering (en rad per steg)",
+    phResponsible: "Ansvarig (ex: 1st line / Leverantör)",
+    phSla: "SLA (ex: svar inom 24h)",
+    allBrands: "Alla varumärken",
+    allCategories: "Alla produktgrupper",
+    addSupplierFirst: "Lägg till leverantör först",
+    noSupplier: "Ingen leverantör",
+    unknownBrand: "Okänt varumärke",
+    unknownCategory: "Okänd produktgrupp",
+    varying: "Varierar",
+    unknownSupplier: "Okänd leverantör",
+    notSet: "Ej satt",
+    noRule: "Ingen matchande regel hittades.",
+    match: "Match",
+    responsible: "Ansvarig",
+    sla: "SLA",
+    flowNoRule: "Ingen regel matchade vald kombination.",
+    flowStep1: "1. Ärendetyp",
+    flowStep2: "2. Kundtyp",
+    flowStep3: "3. Varumärke",
+    flowStep4: "4. Produktgrupp",
+    flowStep5: "5. Matchad regel",
+    flowStep6: "6. Routing",
+    flowStep7: "7. Utför hantering",
+    noResponsible: "Ansvarig ej satt",
+    noSla: "SLA ej satt",
+    exportDone: "Export klar: JSON-filen laddades ner.",
+    csvTemplateDone: "CSV-mall nedladdad.",
+    importJsonDone: "Import klar: data uppdaterad från JSON-fil.",
+    importJsonFail: "Import misslyckades: {error}",
+    csvEmpty: "CSV-filen är tom.",
+    csvFail: "CSV-import misslyckades: {error}",
+    csvDone:
+      "CSV importerad: {rules} regler, {suppliers} leverantörer, {brands} varumärken, {categories} kategorier. Skippade rader: {skipped}.",
+    savedLocalServerFail: "Sparat lokalt men inte till servern: {error}",
+    supplierSaved: "Leverantör sparad.",
+    brandSaved: "Varumärke sparat.",
+    categorySaved: "Produktgrupp sparad.",
+    ruleSaved: "Regel sparad.",
+    needSupplier: "Lägg till leverantör innan du skapar varumärke.",
+    resetDone: "Exempeldata återställd.",
+    syncedServer: "Synkad med serverdata.",
+    syncFail: "Kunde inte synka serverdata: {error}",
+    caseType: {
+      all: "Alla ärendetyper",
+      doa: "DOA (dead on arrival)",
+      warranty: "Garanti efter användning",
+    },
+    customerType: {
+      all: "Alla kundtyper",
+      private: "Privat",
+      b2b: "Business to business",
+    },
+  },
+  en: {
+    heroTitle: "Decision support for service flows",
+    heroDesc:
+      "Select case type, customer type, brand, and product category to get the recommended handling process. Update everything in Admin mode.",
+    flowTitle: "Support Flow",
+    labelCaseType: "Case Type",
+    labelCustomerType: "Customer Type",
+    labelBrand: "Brand",
+    labelCategory: "Product Category",
+    resultTitle: "Recommended Handling",
+    resultPrompt: "Make your selections to get instructions.",
+    flowVisualTitle: "Visual Flow",
+    adminTitle: "Admin",
+    openIntakeForm: "Open Brand Intake Form",
+    csvTemplateBtn: "CSV Template",
+    importCsvBtn: "Import CSV",
+    exportJsonBtn: "Export JSON",
+    importJsonBtn: "Import JSON",
+    resetBtn: "Reset sample data",
+    supplierFormTitle: "Add Supplier",
+    brandFormTitle: "Add Brand",
+    categoryFormTitle: "Add Product Category",
+    ruleFormTitle: "Add Handling Rule",
+    saveSupplierBtn: "Save Supplier",
+    saveBrandBtn: "Save Brand",
+    saveCategoryBtn: "Save Category",
+    saveRuleBtn: "Save Rule",
+    suppliersListTitle: "Suppliers",
+    brandsListTitle: "Brands",
+    categoriesListTitle: "Categories",
+    rulesListTitle: "Rules",
+    phName: "Name",
+    phEmail: "Email",
+    phNotes: "Notes",
+    phBrand: "Brand",
+    phCategory: "Product category",
+    phHeadline: "Headline / short summary",
+    phInstructions: "Handling steps (one line per step)",
+    phResponsible: "Responsible (e.g. 1st line / Supplier)",
+    phSla: "SLA (e.g. response within 24h)",
+    allBrands: "All brands",
+    allCategories: "All categories",
+    addSupplierFirst: "Add a supplier first",
+    noSupplier: "No supplier",
+    unknownBrand: "Unknown brand",
+    unknownCategory: "Unknown category",
+    varying: "Varies",
+    unknownSupplier: "Unknown supplier",
+    notSet: "Not set",
+    noRule: "No matching rule found.",
+    match: "Match",
+    responsible: "Responsible",
+    sla: "SLA",
+    flowNoRule: "No rule matched the selected combination.",
+    flowStep1: "1. Case type",
+    flowStep2: "2. Customer type",
+    flowStep3: "3. Brand",
+    flowStep4: "4. Product category",
+    flowStep5: "5. Matched rule",
+    flowStep6: "6. Routing",
+    flowStep7: "7. Execute handling",
+    noResponsible: "Responsible not set",
+    noSla: "SLA not set",
+    exportDone: "Export complete: JSON file downloaded.",
+    csvTemplateDone: "CSV template downloaded.",
+    importJsonDone: "Import complete: data updated from JSON file.",
+    importJsonFail: "Import failed: {error}",
+    csvEmpty: "CSV file is empty.",
+    csvFail: "CSV import failed: {error}",
+    csvDone:
+      "CSV imported: {rules} rules, {suppliers} suppliers, {brands} brands, {categories} categories. Skipped rows: {skipped}.",
+    savedLocalServerFail: "Saved locally but not to server: {error}",
+    supplierSaved: "Supplier saved.",
+    brandSaved: "Brand saved.",
+    categorySaved: "Category saved.",
+    ruleSaved: "Rule saved.",
+    needSupplier: "Add a supplier before creating a brand.",
+    resetDone: "Sample data reset.",
+    syncedServer: "Synced with server data.",
+    syncFail: "Could not sync server data: {error}",
+    caseType: {
+      all: "All case types",
+      doa: "DOA (dead on arrival)",
+      warranty: "Warranty after usage",
+    },
+    customerType: {
+      all: "All customer types",
+      private: "Private",
+      b2b: "Business to business",
+    },
+  },
+};
 
 const DEFAULT_DATA = {
   suppliers: [
@@ -87,6 +264,18 @@ const DEFAULT_DATA = {
 
 const byId = (arr, id) => arr.find((item) => item.id === id);
 const uid = (prefix) => `${prefix}-${Math.random().toString(36).slice(2, 8)}`;
+let currentLang = localStorage.getItem(LANG_KEY) === "en" ? "en" : "sv";
+
+function t(key) {
+  const parts = key.split(".");
+  let value = I18N[currentLang];
+  for (const part of parts) value = value?.[part];
+  return value || key;
+}
+
+function fmt(key, vars = {}) {
+  return Object.entries(vars).reduce((acc, [name, value]) => acc.replaceAll(`{${name}}`, String(value)), t(key));
+}
 
 function normalizeData(raw) {
   const candidate = {
@@ -148,13 +337,10 @@ function isValidDataShape(data) {
 function loadDataFromLocal() {
   const raw = localStorage.getItem(STORAGE_KEY);
   if (!raw) return structuredClone(DEFAULT_DATA);
-
   try {
     const parsed = JSON.parse(raw);
     const normalized = normalizeData(parsed);
-    if (!isValidDataShape(normalized)) {
-      return structuredClone(DEFAULT_DATA);
-    }
+    if (!isValidDataShape(normalized)) return structuredClone(DEFAULT_DATA);
     return normalized;
   } catch {
     return structuredClone(DEFAULT_DATA);
@@ -173,15 +359,10 @@ async function pullFromServer() {
     headers: { Accept: "application/json" },
     cache: "no-store",
   });
-
-  if (!response.ok) {
-    throw new Error(`Server fetch failed (${response.status})`);
-  }
+  if (!response.ok) throw new Error(`Server fetch failed (${response.status})`);
 
   const payload = normalizeData(await response.json());
-  if (!isValidDataShape(payload)) {
-    throw new Error("Server returned invalid matrix payload.");
-  }
+  if (!isValidDataShape(payload)) throw new Error("Server returned invalid matrix payload.");
 
   db = payload;
   saveDataToLocal();
@@ -193,10 +374,7 @@ async function pushToServer() {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(db),
   });
-
-  if (!response.ok) {
-    throw new Error(`Server save failed (${response.status})`);
-  }
+  if (!response.ok) throw new Error(`Server save failed (${response.status})`);
 
   const payload = normalizeData(await response.json());
   if (isValidDataShape(payload)) {
@@ -205,26 +383,39 @@ async function pushToServer() {
   }
 }
 
+function applyStaticTranslations() {
+  document.documentElement.lang = currentLang;
+  document.querySelectorAll("[data-i18n]").forEach((el) => {
+    el.textContent = t(el.dataset.i18n);
+  });
+  document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => {
+    el.placeholder = t(el.dataset.i18nPlaceholder);
+  });
+
+  document.getElementById("langSv")?.classList.toggle("active", currentLang === "sv");
+  document.getElementById("langEn")?.classList.toggle("active", currentLang === "en");
+}
+
 function optionHtml(value, label) {
   return `<option value="${value}">${label}</option>`;
 }
 
 function labelForCaseType(id) {
-  return CASE_TYPES.find((x) => x.id === id)?.label || id;
+  return t(`caseType.${id}`);
 }
 
 function labelForCustomerType(id) {
-  return CUSTOMER_TYPES.find((x) => x.id === id)?.label || id;
+  return t(`customerType.${id}`);
 }
 
 function labelForBrand(id) {
-  if (id === "all") return "Alla varumärken";
-  return byId(db.brands, id)?.name || "Okänt varumärke";
+  if (id === "all") return t("allBrands");
+  return byId(db.brands, id)?.name || t("unknownBrand");
 }
 
 function labelForCategory(id) {
-  if (id === "all") return "Alla produktgrupper";
-  return byId(db.categories, id)?.name || "Okänd produktgrupp";
+  if (id === "all") return t("allCategories");
+  return byId(db.categories, id)?.name || t("unknownCategory");
 }
 
 function readFlowInput() {
@@ -242,12 +433,12 @@ function fillFlowSelectors(preserve = null) {
   const brand = document.getElementById("brand");
   const category = document.getElementById("category");
 
-  caseType.innerHTML = CASE_TYPES.map((x) => optionHtml(x.id, x.label)).join("");
-  customerType.innerHTML = CUSTOMER_TYPES.map((x) => optionHtml(x.id, x.label)).join("");
-  brand.innerHTML = [optionHtml("all", "Alla varumärken")]
+  caseType.innerHTML = CASE_TYPES.map((x) => optionHtml(x, labelForCaseType(x))).join("");
+  customerType.innerHTML = CUSTOMER_TYPES.map((x) => optionHtml(x, labelForCustomerType(x))).join("");
+  brand.innerHTML = [optionHtml("all", t("allBrands"))]
     .concat(db.brands.map((b) => optionHtml(b.id, b.name)))
     .join("");
-  category.innerHTML = [optionHtml("all", "Alla produktgrupper")]
+  category.innerHTML = [optionHtml("all", t("allCategories"))]
     .concat(db.categories.map((c) => optionHtml(c.id, c.name)))
     .join("");
 
@@ -264,18 +455,16 @@ function fillAdminSelectors() {
   const ruleBrand = document.getElementById("ruleBrand");
   const ruleCategory = document.getElementById("ruleCategory");
 
-  if (db.suppliers.length) {
-    supplierSel.innerHTML = db.suppliers.map((s) => optionHtml(s.id, s.name)).join("");
-  } else {
-    supplierSel.innerHTML = optionHtml("", "Lägg till leverantör först");
-  }
+  supplierSel.innerHTML = db.suppliers.length
+    ? db.suppliers.map((s) => optionHtml(s.id, s.name)).join("")
+    : optionHtml("", t("addSupplierFirst"));
 
-  ruleCase.innerHTML = CASE_TYPES.map((x) => optionHtml(x.id, x.label)).join("");
-  ruleCustomer.innerHTML = CUSTOMER_TYPES.map((x) => optionHtml(x.id, x.label)).join("");
-  ruleBrand.innerHTML = [optionHtml("all", "Alla varumärken")]
+  ruleCase.innerHTML = CASE_TYPES.map((x) => optionHtml(x, labelForCaseType(x))).join("");
+  ruleCustomer.innerHTML = CUSTOMER_TYPES.map((x) => optionHtml(x, labelForCustomerType(x))).join("");
+  ruleBrand.innerHTML = [optionHtml("all", t("allBrands"))]
     .concat(db.brands.map((b) => optionHtml(b.id, b.name)))
     .join("");
-  ruleCategory.innerHTML = [optionHtml("all", "Alla produktgrupper")]
+  ruleCategory.innerHTML = [optionHtml("all", t("allCategories"))]
     .concat(db.categories.map((c) => optionHtml(c.id, c.name)))
     .join("");
 }
@@ -283,31 +472,19 @@ function fillAdminSelectors() {
 function scoreRule(rule, input) {
   const keys = ["caseType", "customerType", "brandId", "categoryId"];
   let score = 0;
-
   for (const key of keys) {
     const wanted = input[key];
     const value = rule[key];
-
-    if (value === wanted) {
-      score += 3;
-      continue;
-    }
-
-    if (value === "all") {
-      score += 1;
-      continue;
-    }
-
-    return -1;
+    if (value === wanted) score += 3;
+    else if (value === "all") score += 1;
+    else return -1;
   }
-
   return score;
 }
 
 function findBestRule(input) {
   let best = null;
   let bestScore = -1;
-
   for (const rule of db.rules) {
     const score = scoreRule(rule, input);
     if (score > bestScore) {
@@ -315,15 +492,13 @@ function findBestRule(input) {
       bestScore = score;
     }
   }
-
   return best;
 }
 
 function renderFlowChart(input, rule) {
   const flowChart = document.getElementById("flowChart");
-
   if (!rule) {
-    flowChart.innerHTML = `<div class="flow-step"><span class="step-label">Status</span><span class="step-value">Ingen regel matchade vald kombination.</span></div>`;
+    flowChart.innerHTML = `<div class="flow-step"><span class="step-label">Status</span><span class="step-value">${t("flowNoRule")}</span></div>`;
     return;
   }
 
@@ -331,19 +506,19 @@ function renderFlowChart(input, rule) {
   const matchedCategory = labelForCategory(rule.categoryId);
   const supplierName =
     rule.brandId === "all"
-      ? "Varierar"
-      : byId(db.suppliers, byId(db.brands, rule.brandId)?.supplierId || "")?.name || "Okänd leverantör";
+      ? t("varying")
+      : byId(db.suppliers, byId(db.brands, rule.brandId)?.supplierId || "")?.name || t("unknownSupplier");
 
   const steps = [
-    { label: "1. Ärendetyp", value: labelForCaseType(input.caseType) },
-    { label: "2. Kundtyp", value: labelForCustomerType(input.customerType) },
-    { label: "3. Varumärke", value: `${labelForBrand(input.brandId)}` },
-    { label: "4. Produktgrupp", value: `${labelForCategory(input.categoryId)}` },
-    { label: "5. Matchad regel", value: `${rule.headline}` },
-    { label: "6. Routing", value: `${matchedBrand} -> ${supplierName} -> ${matchedCategory}` },
+    { label: t("flowStep1"), value: labelForCaseType(input.caseType) },
+    { label: t("flowStep2"), value: labelForCustomerType(input.customerType) },
+    { label: t("flowStep3"), value: labelForBrand(input.brandId) },
+    { label: t("flowStep4"), value: labelForCategory(input.categoryId) },
+    { label: t("flowStep5"), value: rule.headline },
+    { label: t("flowStep6"), value: `${matchedBrand} -> ${supplierName} -> ${matchedCategory}` },
     {
-      label: "7. Utför hantering",
-      value: `${rule.responsible || "Ansvarig ej satt"} | ${rule.sla || "SLA ej satt"}`,
+      label: t("flowStep7"),
+      value: `${rule.responsible || t("noResponsible")} | ${rule.sla || t("noSla")}`,
     },
   ];
 
@@ -361,19 +536,16 @@ function renderResult() {
   const result = document.getElementById("result");
 
   if (!rule) {
-    result.innerHTML = "<h3>Rekommenderad hantering</h3><p>Ingen matchande regel hittades.</p>";
+    result.innerHTML = `<h3>${t("resultTitle")}</h3><p>${t("noRule")}</p>`;
     renderFlowChart(input, null);
     return;
   }
 
-  const brandName = labelForBrand(rule.brandId);
-  const categoryName = labelForCategory(rule.categoryId);
-
   result.innerHTML = `
     <h3>${rule.headline}</h3>
-    <p><strong>Match:</strong> ${brandName} / ${categoryName}</p>
-    <p><strong>Ansvarig:</strong> ${rule.responsible || "Ej satt"}</p>
-    <p><strong>SLA:</strong> ${rule.sla || "Ej satt"}</p>
+    <p><strong>${t("match")}:</strong> ${labelForBrand(rule.brandId)} / ${labelForCategory(rule.categoryId)}</p>
+    <p><strong>${t("responsible")}:</strong> ${rule.responsible || t("notSet")}</p>
+    <p><strong>${t("sla")}:</strong> ${rule.sla || t("notSet")}</p>
     <ol>${rule.instructions.map((step) => `<li>${step}</li>`).join("")}</ol>
   `;
 
@@ -381,30 +553,26 @@ function renderResult() {
 }
 
 function renderLists() {
-  const supplierList = document.getElementById("supplierList");
-  const brandList = document.getElementById("brandList");
-  const categoryList = document.getElementById("categoryList");
-  const ruleList = document.getElementById("ruleList");
-
-  supplierList.innerHTML = db.suppliers
+  document.getElementById("supplierList").innerHTML = db.suppliers
     .map((s) => `<li><strong>${s.name}</strong><br><small>${s.email || ""}</small></li>`)
     .join("");
 
-  brandList.innerHTML = db.brands
+  document.getElementById("brandList").innerHTML = db.brands
     .map((b) => {
       const supplier = byId(db.suppliers, b.supplierId);
-      return `<li><strong>${b.name}</strong><br><small>${supplier?.name || "Ingen leverantör"}</small></li>`;
+      return `<li><strong>${b.name}</strong><br><small>${supplier?.name || t("noSupplier")}</small></li>`;
     })
     .join("");
 
-  categoryList.innerHTML = db.categories.map((c) => `<li>${c.name}</li>`).join("");
+  document.getElementById("categoryList").innerHTML = db.categories.map((c) => `<li>${c.name}</li>`).join("");
 
-  ruleList.innerHTML = db.rules
-    .map((r) => {
-      return `<li><strong>${r.headline}</strong><br><small>${labelForCaseType(
-        r.caseType,
-      )} / ${labelForCustomerType(r.customerType)} / ${labelForBrand(r.brandId)} / ${labelForCategory(r.categoryId)}</small></li>`;
-    })
+  document.getElementById("ruleList").innerHTML = db.rules
+    .map(
+      (r) =>
+        `<li><strong>${r.headline}</strong><br><small>${labelForCaseType(r.caseType)} / ${labelForCustomerType(
+          r.customerType,
+        )} / ${labelForBrand(r.brandId)} / ${labelForCategory(r.categoryId)}</small></li>`,
+    )
     .join("");
 }
 
@@ -414,13 +582,13 @@ function setImportStatus(message, isError = false) {
   statusEl.style.color = isError ? "#b42318" : "var(--ink-muted)";
 }
 
-async function persistData(successMessage = "Data sparad.") {
+async function persistData(successMessage) {
   saveDataToLocal();
   try {
     await pushToServer();
     setImportStatus(successMessage);
   } catch (error) {
-    setImportStatus(`Sparat lokalt men inte till servern: ${error.message}`, true);
+    setImportStatus(fmt("savedLocalServerFail", { error: error.message }), true);
   }
 }
 
@@ -434,7 +602,7 @@ function exportData() {
   a.download = `support-matrix-${stamp}.json`;
   a.click();
   URL.revokeObjectURL(url);
-  setImportStatus("Export klar: JSON-filen laddades ner.");
+  setImportStatus(t("exportDone"));
 }
 
 function downloadCsvTemplate() {
@@ -450,37 +618,31 @@ function downloadCsvTemplate() {
   a.download = "support-matrix-template.csv";
   a.click();
   URL.revokeObjectURL(url);
-  setImportStatus("CSV-mall nedladdad.");
+  setImportStatus(t("csvTemplateDone"));
 }
 
 async function importData(file) {
   if (!file) return;
-
   try {
     const text = await file.text();
     const parsed = JSON.parse(text);
     const normalized = normalizeData(parsed);
-
     if (!isValidDataShape(normalized)) {
-      throw new Error("JSON saknar nödvändig data (suppliers/brands/categories/rules).");
+      throw new Error("JSON is missing required data.");
     }
-
     db = normalized;
-    await persistData("Import klar: data uppdaterad från JSON-fil.");
+    await persistData(t("importJsonDone"));
     boot(true);
   } catch (error) {
-    setImportStatus(`Import misslyckades: ${error.message}`, true);
+    setImportStatus(fmt("importJsonFail", { error: error.message }), true);
   }
 }
 
 async function importCsv(file) {
   if (!file) return;
-
   try {
     const csvText = await file.text();
-    if (!csvText.trim()) {
-      throw new Error("CSV-filen är tom.");
-    }
+    if (!csvText.trim()) throw new Error(t("csvEmpty"));
 
     const response = await fetch("/api/intake/csv", {
       method: "POST",
@@ -489,24 +651,38 @@ async function importCsv(file) {
     });
 
     const payload = await response.json();
-    if (!response.ok) {
-      throw new Error(payload.error || `CSV import failed (${response.status})`);
-    }
+    if (!response.ok) throw new Error(payload.error || `CSV import failed (${response.status})`);
 
     await pullFromServer();
     boot(true);
     setImportStatus(
-      `CSV importerad: ${payload.createdRules} regler, ${payload.createdSuppliers} leverantorer, ${payload.createdBrands} varumarken, ${payload.createdCategories} kategorier. Skippade rader: ${payload.skippedRows}.`,
+      fmt("csvDone", {
+        rules: payload.createdRules,
+        suppliers: payload.createdSuppliers,
+        brands: payload.createdBrands,
+        categories: payload.createdCategories,
+        skipped: payload.skippedRows,
+      }),
     );
   } catch (error) {
-    setImportStatus(`CSV-import misslyckades: ${error.message}`, true);
+    setImportStatus(fmt("csvFail", { error: error.message }), true);
   }
+}
+
+function setLanguage(lang) {
+  currentLang = lang === "en" ? "en" : "sv";
+  localStorage.setItem(LANG_KEY, currentLang);
+  applyStaticTranslations();
+  boot(true);
 }
 
 function bindEvents() {
   ["caseType", "customerType", "brand", "category"].forEach((id) => {
     document.getElementById(id).addEventListener("change", renderResult);
   });
+
+  document.getElementById("langSv").addEventListener("click", () => setLanguage("sv"));
+  document.getElementById("langEn").addEventListener("click", () => setLanguage("en"));
 
   document.getElementById("supplierForm").addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -517,7 +693,7 @@ function bindEvents() {
       email: String(data.get("email") || "").trim(),
       notes: String(data.get("notes") || "").trim(),
     });
-    await persistData("Leverantör sparad.");
+    await persistData(t("supplierSaved"));
     e.currentTarget.reset();
     boot(true);
   });
@@ -527,7 +703,7 @@ function bindEvents() {
     const data = new FormData(e.currentTarget);
     const supplierId = String(data.get("supplierId") || "").trim();
     if (!supplierId) {
-      setImportStatus("Lägg till leverantör innan du skapar varumärke.", true);
+      setImportStatus(t("needSupplier"), true);
       return;
     }
 
@@ -536,7 +712,7 @@ function bindEvents() {
       name: String(data.get("name") || "").trim(),
       supplierId,
     });
-    await persistData("Varumärke sparat.");
+    await persistData(t("brandSaved"));
     e.currentTarget.reset();
     boot(true);
   });
@@ -548,7 +724,7 @@ function bindEvents() {
       id: uid("cat"),
       name: String(data.get("name") || "").trim(),
     });
-    await persistData("Produktgrupp sparad.");
+    await persistData(t("categorySaved"));
     e.currentTarget.reset();
     boot(true);
   });
@@ -570,7 +746,7 @@ function bindEvents() {
       responsible: String(data.get("responsible") || "").trim(),
       sla: String(data.get("sla") || "").trim(),
     });
-    await persistData("Regel sparad.");
+    await persistData(t("ruleSaved"));
     e.currentTarget.reset();
     boot(true);
   });
@@ -579,43 +755,40 @@ function bindEvents() {
   document.getElementById("downloadCsvTemplate").addEventListener("click", downloadCsvTemplate);
 
   document.getElementById("importJson").addEventListener("change", async (e) => {
-    const file = e.target.files?.[0];
-    await importData(file);
+    await importData(e.target.files?.[0]);
     e.target.value = "";
   });
 
   document.getElementById("importCsv").addEventListener("change", async (e) => {
-    const file = e.target.files?.[0];
-    await importCsv(file);
+    await importCsv(e.target.files?.[0]);
     e.target.value = "";
   });
 
   document.getElementById("resetData").addEventListener("click", async () => {
     db = structuredClone(DEFAULT_DATA);
-    await persistData("Exempeldata återställd.");
+    await persistData(t("resetDone"));
     boot(true);
   });
 }
 
 function boot(isRebind = false) {
   const selected = isRebind ? readFlowInput() : null;
+  applyStaticTranslations();
   fillFlowSelectors(selected);
   fillAdminSelectors();
   renderLists();
   renderResult();
-
   if (!isRebind) bindEvents();
 }
 
 async function init() {
   boot();
-
   try {
     await pullFromServer();
     boot(true);
-    setImportStatus("Synkad med serverdata.");
+    setImportStatus(t("syncedServer"));
   } catch (error) {
-    setImportStatus(`Kunde inte synka serverdata: ${error.message}`, true);
+    setImportStatus(fmt("syncFail", { error: error.message }), true);
   }
 }
 
