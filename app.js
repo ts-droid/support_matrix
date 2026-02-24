@@ -1,5 +1,6 @@
 const STORAGE_KEY = "support-matrix-v1";
 const LANG_KEY = "support-matrix-lang";
+const AUTO_SYNC_MS = 15000;
 
 const CASE_TYPES = ["all", "doa", "warranty"];
 const CUSTOMER_TYPES = ["all", "private", "b2b"];
@@ -484,6 +485,26 @@ async function pullFromServer() {
 
   db = payload;
   saveDataToLocal();
+}
+
+async function pullFromServerIfChanged() {
+  const response = await fetch("/api/matrix", {
+    method: "GET",
+    headers: { Accept: "application/json" },
+    cache: "no-store",
+  });
+  if (!response.ok) throw new Error(`Server fetch failed (${response.status})`);
+
+  const payload = normalizeData(await response.json());
+  if (!isValidDataShape(payload)) throw new Error("Server returned invalid matrix payload.");
+
+  const before = JSON.stringify(db);
+  const after = JSON.stringify(payload);
+  if (before === after) return false;
+
+  db = payload;
+  saveDataToLocal();
+  return true;
 }
 
 async function pushToServer() {
@@ -976,6 +997,43 @@ async function init() {
   } catch (error) {
     setImportStatus(fmt("syncFail", { error: error.message }), true);
   }
+
+  setInterval(async () => {
+    try {
+      const changed = await pullFromServerIfChanged();
+      if (changed) {
+        boot(true);
+        setImportStatus(t("syncedServer"));
+      }
+    } catch (error) {
+      setImportStatus(fmt("syncFail", { error: error.message }), true);
+    }
+  }, AUTO_SYNC_MS);
+
+  window.addEventListener("focus", async () => {
+    try {
+      const changed = await pullFromServerIfChanged();
+      if (changed) {
+        boot(true);
+        setImportStatus(t("syncedServer"));
+      }
+    } catch (error) {
+      setImportStatus(fmt("syncFail", { error: error.message }), true);
+    }
+  });
+
+  document.addEventListener("visibilitychange", async () => {
+    if (document.visibilityState !== "visible") return;
+    try {
+      const changed = await pullFromServerIfChanged();
+      if (changed) {
+        boot(true);
+        setImportStatus(t("syncedServer"));
+      }
+    } catch (error) {
+      setImportStatus(fmt("syncFail", { error: error.message }), true);
+    }
+  });
 }
 
 init();
