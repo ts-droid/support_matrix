@@ -154,6 +154,10 @@
         color: var(--ink-muted);
         margin-top: 0.2rem;
       }
+
+      .hidden {
+        display: none !important;
+      }
     </style>
   </head>
   <body>
@@ -209,15 +213,30 @@
             </label>
             <label>
               <span data-i18n="headline">Handling headline *</span>
-              <input name="headline" id="headlineInput" required />
+              <select name="headlinePreset" id="headlinePresetSelect" required></select>
+              <input name="headlineCustom" id="headlineInput" class="hidden" />
             </label>
             <label>
               <span data-i18n="responsible">Responsible team</span>
-              <input name="responsible" id="responsibleInput" />
+              <select name="responsiblePreset" id="responsiblePresetSelect" required></select>
+              <input name="responsibleCustom" id="responsibleInput" class="hidden" />
             </label>
             <label>
               <span data-i18n="sla">SLA</span>
-              <input name="sla" id="slaInput" />
+              <select name="slaPreset" id="slaPresetSelect" required></select>
+              <input name="slaCustom" id="slaInput" class="hidden" />
+            </label>
+            <label>
+              <span data-i18n="contactMode">Contact route</span>
+              <select name="contactMode" id="contactModeSelect" required></select>
+            </label>
+            <label>
+              <span data-i18n="vendorCaseEmail">Vendor support email (for this case flow)</span>
+              <input name="vendorContactEmail" id="vendorContactEmailInput" />
+            </label>
+            <label>
+              <span data-i18n="vendorCasePhone">Vendor support phone (for this case flow)</span>
+              <input name="vendorContactPhone" id="vendorContactPhoneInput" />
             </label>
           </div>
 
@@ -229,6 +248,11 @@
           <label>
             <span data-i18n="supplierNotes">Supplier notes</span>
             <textarea name="supplierNotes" id="supplierNotesInput"></textarea>
+          </label>
+
+          <label>
+            <span data-i18n="vendorCaseNotes">Vendor contact instructions per flow</span>
+            <textarea name="vendorContactNotes" id="vendorContactNotesInput"></textarea>
           </label>
 
           <button type="submit" data-i18n="submitBtn">Submit Intake</button>
@@ -248,7 +272,7 @@
           csvDesc:
             "For multiple flows at once, use a CSV file. One row can include multiple categories in categoryNames separated by | (example: Laptop|Monitor|Docking).",
           csvHint:
-            "CSV columns: supplierName, supplierEmail, supplierNotes, brandName, categoryNames, caseType, customerType, headline, instructions, responsible, sla",
+            "CSV columns: supplierName, supplierEmail, supplierNotes, brandName, categoryNames, caseType, customerType, headline, instructions, responsible, sla, contactMode, vendorContactEmail, vendorContactPhone, vendorContactNotes",
           downloadCsv: "Download CSV Template",
           uploadCsv: "Upload CSV",
           supplierName: "Supplier name *",
@@ -260,6 +284,10 @@
           headline: "Handling headline *",
           responsible: "Responsible team",
           sla: "SLA",
+          contactMode: "Contact route",
+          vendorCaseEmail: "Vendor support email (for this case flow)",
+          vendorCasePhone: "Vendor support phone (for this case flow)",
+          vendorCaseNotes: "Vendor contact instructions per flow",
           instructions: "Handling instructions * (one line per step)",
           supplierNotes: "Supplier notes",
           submitBtn: "Submit Intake",
@@ -273,10 +301,47 @@
             private: "Private",
             b2b: "Business to business",
           },
+          headlineOptions: {
+            doa_replacement: "DOA replacement process",
+            warranty_rma: "Warranty RMA process",
+            troubleshoot_before_return: "Troubleshooting before return",
+            vendor_direct_exchange: "Vendor direct exchange",
+            local_swap_reimbursement: "Local swap and vendor reimbursement",
+            repair_center: "Repair center workflow",
+            refund_authorization: "Refund authorization workflow",
+            vendor_tech_escalation: "Escalation to vendor technical team",
+            other: "Other (custom)",
+          },
+          responsibleOptions: {
+            vendor_support: "Vendor support",
+            first_line: "1st line",
+            second_line: "2nd line",
+            logistics: "Logistics",
+            service_partner: "Service partner",
+            account_manager: "Account manager",
+            other: "Other (custom)",
+          },
+          slaOptions: {
+            "4h": "4 business hours",
+            "8h": "8 business hours",
+            "24h": "24 hours",
+            "48h": "48 hours",
+            "3_5_days": "3-5 business days",
+            other: "Other (custom)",
+          },
+          contactModeOptions: {
+            via_vendora: "Via Vendora support",
+            vendor_direct: "End customer contacts vendor directly",
+            hybrid: "Hybrid (Vendora + vendor)",
+          },
           phHeadline: "Example: DOA replacement via supplier RMA",
           phResponsible: "Example: First line + Supplier",
           phSla: "Example: Response in 24h",
           phSupplierNotes: "Optional notes for return logistics or conditions",
+          phVendorContactEmail: "Example: support.eu@vendor.com",
+          phVendorContactPhone: "Example: +31 20 123 45 67",
+          phVendorContactNotes:
+            "Example: For technical faults, end customer should contact vendor support directly.",
           submitting: "Submitting...",
           submitOk: "Submitted successfully. Your data is now available in the Support Matrix.",
           submitFail: "Could not submit: {error}",
@@ -294,7 +359,7 @@
           csvDesc:
             "För flera flöden samtidigt, använd en CSV-fil. En rad kan innehålla flera kategorier i categoryNames separerat med | (exempel: Laptop|Monitor|Docking).",
           csvHint:
-            "CSV-kolumner: supplierName, supplierEmail, supplierNotes, brandName, categoryNames, caseType, customerType, headline, instructions, responsible, sla",
+            "CSV-kolumner: supplierName, supplierEmail, supplierNotes, brandName, categoryNames, caseType, customerType, headline, instructions, responsible, sla, contactMode, vendorContactEmail, vendorContactPhone, vendorContactNotes",
           downloadCsv: "Ladda ner CSV-mall",
           uploadCsv: "Ladda upp CSV",
           supplierName: "Leverantörsnamn *",
@@ -306,6 +371,10 @@
           headline: "Rubrik för hantering *",
           responsible: "Ansvarigt team",
           sla: "SLA",
+          contactMode: "Kontaktväg",
+          vendorCaseEmail: "Leverantörens support-e-post (för detta flöde)",
+          vendorCasePhone: "Leverantörens support-telefon (för detta flöde)",
+          vendorCaseNotes: "Kontaktinstruktion per flöde",
           instructions: "Instruktioner * (en rad per steg)",
           supplierNotes: "Leverantörsnoteringar",
           submitBtn: "Skicka formulär",
@@ -319,10 +388,47 @@
             private: "Privat",
             b2b: "Business to business",
           },
+          headlineOptions: {
+            doa_replacement: "DOA replacement process",
+            warranty_rma: "Warranty RMA process",
+            troubleshoot_before_return: "Troubleshooting before return",
+            vendor_direct_exchange: "Vendor direct exchange",
+            local_swap_reimbursement: "Local swap and vendor reimbursement",
+            repair_center: "Repair center workflow",
+            refund_authorization: "Refund authorization workflow",
+            vendor_tech_escalation: "Escalation to vendor technical team",
+            other: "Annan (fyll i själv)",
+          },
+          responsibleOptions: {
+            vendor_support: "Leverantörens support",
+            first_line: "1st line",
+            second_line: "2nd line",
+            logistics: "Logistik",
+            service_partner: "Servicepartner",
+            account_manager: "Account manager",
+            other: "Annan (fyll i själv)",
+          },
+          slaOptions: {
+            "4h": "4 arbetstimmar",
+            "8h": "8 arbetstimmar",
+            "24h": "24 timmar",
+            "48h": "48 timmar",
+            "3_5_days": "3-5 arbetsdagar",
+            other: "Annan (fyll i själv)",
+          },
+          contactModeOptions: {
+            via_vendora: "Via Vendora support",
+            vendor_direct: "Slutkund kontaktar leverantör direkt",
+            hybrid: "Hybrid (Vendora + leverantör)",
+          },
           phHeadline: "Exempel: DOA-utbyte via leverantörens RMA",
           phResponsible: "Exempel: Första linjen + Leverantör",
           phSla: "Exempel: Svar inom 24h",
           phSupplierNotes: "Valfria noteringar för returlogistik eller villkor",
+          phVendorContactEmail: "Exempel: support.eu@leverantor.com",
+          phVendorContactPhone: "Exempel: +31 20 123 45 67",
+          phVendorContactNotes:
+            "Exempel: Vid tekniska fel ska slutkund kontakta leverantörens support direkt.",
           submitting: "Skickar...",
           submitOk: "Inskickat. Datan finns nu tillgänglig i Support Matrix.",
           submitFail: "Kunde inte skicka: {error}",
@@ -352,6 +458,19 @@
         return `<option value="${value}">${label}</option>`;
       }
 
+      function fillPresetSelect(selectId, optionKeys, optionMap) {
+        const el = document.getElementById(selectId);
+        el.innerHTML = optionKeys.map((key) => optionHtml(key, optionMap[key])).join("");
+      }
+
+      function toggleCustomField(selectId, inputId) {
+        const select = document.getElementById(selectId);
+        const input = document.getElementById(inputId);
+        const isOther = select.value === "other";
+        input.classList.toggle("hidden", !isOther);
+        input.required = isOther;
+      }
+
       function applyLang() {
         document.documentElement.lang = currentLang;
         document.querySelectorAll("[data-i18n]").forEach((el) => {
@@ -362,6 +481,9 @@
         document.getElementById("responsibleInput").placeholder = t("phResponsible");
         document.getElementById("slaInput").placeholder = t("phSla");
         document.getElementById("supplierNotesInput").placeholder = t("phSupplierNotes");
+        document.getElementById("vendorContactEmailInput").placeholder = t("phVendorContactEmail");
+        document.getElementById("vendorContactPhoneInput").placeholder = t("phVendorContactPhone");
+        document.getElementById("vendorContactNotesInput").placeholder = t("phVendorContactNotes");
 
         document.getElementById("caseTypeSelect").innerHTML = ["all", "doa", "warranty"]
           .map((id) => optionHtml(id, I18N[currentLang].caseOptions[id]))
@@ -370,6 +492,41 @@
         document.getElementById("customerTypeSelect").innerHTML = ["all", "private", "b2b"]
           .map((id) => optionHtml(id, I18N[currentLang].customerOptions[id]))
           .join("");
+
+        fillPresetSelect(
+          "headlinePresetSelect",
+          [
+            "doa_replacement",
+            "warranty_rma",
+            "troubleshoot_before_return",
+            "vendor_direct_exchange",
+            "local_swap_reimbursement",
+            "repair_center",
+            "refund_authorization",
+            "vendor_tech_escalation",
+            "other",
+          ],
+          I18N[currentLang].headlineOptions,
+        );
+        fillPresetSelect(
+          "responsiblePresetSelect",
+          ["vendor_support", "first_line", "second_line", "logistics", "service_partner", "account_manager", "other"],
+          I18N[currentLang].responsibleOptions,
+        );
+        fillPresetSelect(
+          "slaPresetSelect",
+          ["4h", "8h", "24h", "48h", "3_5_days", "other"],
+          I18N[currentLang].slaOptions,
+        );
+        fillPresetSelect(
+          "contactModeSelect",
+          ["via_vendora", "vendor_direct", "hybrid"],
+          I18N[currentLang].contactModeOptions,
+        );
+
+        toggleCustomField("headlinePresetSelect", "headlineInput");
+        toggleCustomField("responsiblePresetSelect", "responsibleInput");
+        toggleCustomField("slaPresetSelect", "slaInput");
 
         document.getElementById("langSv").classList.toggle("active", currentLang === "sv");
         document.getElementById("langEn").classList.toggle("active", currentLang === "en");
@@ -383,9 +540,9 @@
 
       function downloadCsvTemplate() {
         const header =
-          "supplierName,supplierEmail,supplierNotes,brandName,categoryNames,caseType,customerType,headline,instructions,responsible,sla";
+          "supplierName,supplierEmail,supplierNotes,brandName,categoryNames,caseType,customerType,headline,instructions,responsible,sla,contactMode,vendorContactEmail,vendorContactPhone,vendorContactNotes";
         const sample =
-          '"Nordic Supply AB","support@nordicsupply.se","Returns via portal","AeroHome","Robotdammsugare|Skarm","doa","private","DOA replacement process","Validate defect||Create return label||Ship replacement","1st line + Warehouse","Response 4h / replacement 24h"';
+          '"Nordic Supply AB","support@nordicsupply.se","Returns via portal","AeroHome","Robotdammsugare|Skarm","doa","private","DOA replacement process","Validate defect||Create return label||Ship replacement","1st line + Warehouse","Response 4h / replacement 24h","via_vendora","support@nordicsupply.se","+46 8 123 45 67","Complex technical cases are handled directly by supplier support."';
         const payload = `${header}\n${sample}\n`;
         const blob = new Blob([payload], { type: "text/csv;charset=utf-8" });
         const url = URL.createObjectURL(blob);
@@ -405,6 +562,19 @@
 
         const formData = new FormData(form);
         const payload = Object.fromEntries(formData.entries());
+
+        payload.headline =
+          payload.headlinePreset === "other"
+            ? String(payload.headlineCustom || "").trim()
+            : I18N[currentLang].headlineOptions[payload.headlinePreset];
+        payload.responsible =
+          payload.responsiblePreset === "other"
+            ? String(payload.responsibleCustom || "").trim()
+            : I18N[currentLang].responsibleOptions[payload.responsiblePreset];
+        payload.sla =
+          payload.slaPreset === "other"
+            ? String(payload.slaCustom || "").trim()
+            : I18N[currentLang].slaOptions[payload.slaPreset];
 
         try {
           const response = await fetch("/api/intake", {
@@ -464,6 +634,15 @@
 
       document.getElementById("langSv").addEventListener("click", () => setLang("sv"));
       document.getElementById("langEn").addEventListener("click", () => setLang("en"));
+      document.getElementById("headlinePresetSelect").addEventListener("change", () =>
+        toggleCustomField("headlinePresetSelect", "headlineInput"),
+      );
+      document.getElementById("responsiblePresetSelect").addEventListener("change", () =>
+        toggleCustomField("responsiblePresetSelect", "responsibleInput"),
+      );
+      document.getElementById("slaPresetSelect").addEventListener("change", () =>
+        toggleCustomField("slaPresetSelect", "slaInput"),
+      );
 
       applyLang();
     </script>

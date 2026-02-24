@@ -132,6 +132,10 @@ function normalizeData(raw) {
                   .filter(Boolean),
             responsible: String(r.responsible || ""),
             sla: String(r.sla || ""),
+            contactMode: String(r.contactMode || "via_vendora"),
+            vendorContactEmail: String(r.vendorContactEmail || ""),
+            vendorContactPhone: String(r.vendorContactPhone || ""),
+            vendorContactNotes: String(r.vendorContactNotes || ""),
           }))
       : [],
   };
@@ -184,6 +188,10 @@ function toSafeCaseType(value) {
 
 function toSafeCustomerType(value) {
   return ["private", "b2b", "all"].includes(value) ? value : "all";
+}
+
+function toSafeContactMode(value) {
+  return ["via_vendora", "vendor_direct", "hybrid"].includes(value) ? value : "via_vendora";
 }
 
 function parseCsv(text) {
@@ -347,6 +355,10 @@ app.post("/api/intake", (req, res) => {
   const headline = String(payload.headline || "").trim();
   const responsible = String(payload.responsible || "").trim();
   const sla = String(payload.sla || "").trim();
+  const contactMode = toSafeContactMode(String(payload.contactMode || "via_vendora").trim());
+  const vendorContactEmail = String(payload.vendorContactEmail || "").trim();
+  const vendorContactPhone = String(payload.vendorContactPhone || "").trim();
+  const vendorContactNotes = String(payload.vendorContactNotes || "").trim();
   const instructions = String(payload.instructions || "")
     .split("\n")
     .map((line) => line.trim())
@@ -376,6 +388,10 @@ app.post("/api/intake", (req, res) => {
     instructions,
     responsible,
     sla,
+    contactMode,
+    vendorContactEmail,
+    vendorContactPhone,
+    vendorContactNotes,
   });
 
   writeData(db);
@@ -427,6 +443,21 @@ app.post(
       const headline = getCsvValue(raw, ["headline", "title"]);
       const responsible = getCsvValue(raw, ["responsible", "owner"]);
       const sla = getCsvValue(raw, ["sla"]);
+      const contactMode = toSafeContactMode(
+        getCsvValue(raw, ["contactMode", "contact_mode"]) || "via_vendora",
+      );
+      const vendorContactEmail = getCsvValue(raw, [
+        "vendorContactEmail",
+        "vendor_contact_email",
+      ]);
+      const vendorContactPhone = getCsvValue(raw, [
+        "vendorContactPhone",
+        "vendor_contact_phone",
+      ]);
+      const vendorContactNotes = getCsvValue(raw, [
+        "vendorContactNotes",
+        "vendor_contact_notes",
+      ]);
       const caseType = toSafeCaseType(getCsvValue(raw, ["caseType", "case_type"]) || "all");
       const customerType = toSafeCustomerType(
         getCsvValue(raw, ["customerType", "customer_type"]) || "all",
@@ -465,6 +496,10 @@ app.post(
           instructions,
           responsible,
           sla,
+          contactMode,
+          vendorContactEmail,
+          vendorContactPhone,
+          vendorContactNotes,
         });
         createdRules += 1;
       }

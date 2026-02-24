@@ -111,15 +111,22 @@
               <select name="brandId" id="ruleBrand" required></select>
               <select name="categoryId" id="ruleCategory" required></select>
             </div>
-            <input name="headline" data-i18n-placeholder="phHeadline" placeholder="Rubrik / kort sammanfattning" required />
+            <select name="headlinePreset" id="ruleHeadlinePreset" required></select>
+            <input name="headlineCustom" id="ruleHeadlineCustom" class="hidden" data-i18n-placeholder="phHeadlineCustom" placeholder="Anpassad rubrik" />
             <textarea
               name="instructions"
               data-i18n-placeholder="phInstructions"
               placeholder="Steg för hantering (en rad per steg)"
               required
             ></textarea>
-            <input name="responsible" data-i18n-placeholder="phResponsible" placeholder="Ansvarig (ex: 1st line / Leverantör)" />
-            <input name="sla" data-i18n-placeholder="phSla" placeholder="SLA (ex: svar inom 24h)" />
+            <select name="responsiblePreset" id="ruleResponsiblePreset" required></select>
+            <input name="responsibleCustom" id="ruleResponsibleCustom" class="hidden" data-i18n-placeholder="phResponsibleCustom" placeholder="Anpassat ansvarigt team" />
+            <select name="slaPreset" id="ruleSlaPreset" required></select>
+            <input name="slaCustom" id="ruleSlaCustom" class="hidden" data-i18n-placeholder="phSlaCustom" placeholder="Anpassad SLA" />
+            <select name="contactMode" id="ruleContactMode" required></select>
+            <input name="vendorContactEmail" data-i18n-placeholder="phVendorContactEmail" placeholder="Leverantörens support-e-post" />
+            <input name="vendorContactPhone" data-i18n-placeholder="phVendorContactPhone" placeholder="Leverantörens support-telefon" />
+            <textarea name="vendorContactNotes" data-i18n-placeholder="phVendorContactNotes" placeholder="Kontaktinstruktion (ex. slutkund kontaktar leverantören direkt)"></textarea>
             <button type="submit" data-i18n="saveRuleBtn">Spara regel</button>
           </form>
         </div>

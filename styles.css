@@ -197,6 +197,10 @@ button.ghost {
   font-size: 0.9rem;
 }
 
+.hidden {
+  display: none !important;
+}
+
 button:hover {
   transform: translateY(-1px);
 }

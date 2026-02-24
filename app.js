@@ -3,6 +3,35 @@ const LANG_KEY = "support-matrix-lang";
 
 const CASE_TYPES = ["all", "doa", "warranty"];
 const CUSTOMER_TYPES = ["all", "private", "b2b"];
+const HEADLINE_PRESETS = [
+  "doa_replacement",
+  "warranty_rma",
+  "troubleshoot_before_return",
+  "vendor_direct_exchange",
+  "local_swap_reimbursement",
+  "repair_center",
+  "refund_authorization",
+  "vendor_tech_escalation",
+  "other",
+];
+const RESPONSIBLE_PRESETS = [
+  "vendor_support",
+  "first_line",
+  "second_line",
+  "logistics",
+  "service_partner",
+  "account_manager",
+  "other",
+];
+const SLA_PRESETS = [
+  "4h",
+  "8h",
+  "24h",
+  "48h",
+  "3_5_days",
+  "other",
+];
+const CONTACT_MODE_PRESETS = ["via_vendora", "vendor_direct", "hybrid"];
 
 const I18N = {
   sv: {
@@ -45,6 +74,13 @@ const I18N = {
     phInstructions: "Steg för hantering (en rad per steg)",
     phResponsible: "Ansvarig (ex: 1st line / Leverantör)",
     phSla: "SLA (ex: svar inom 24h)",
+    phHeadlineCustom: "Anpassad rubrik",
+    phResponsibleCustom: "Anpassat ansvarigt team",
+    phSlaCustom: "Anpassad SLA",
+    phVendorContactEmail: "Leverantörens support-e-post",
+    phVendorContactPhone: "Leverantörens support-telefon",
+    phVendorContactNotes:
+      "Kontaktinstruktion (ex. slutkund kontaktar leverantören direkt)",
     allBrands: "Alla varumärken",
     allCategories: "Alla produktgrupper",
     addSupplierFirst: "Lägg till leverantör först",
@@ -58,6 +94,8 @@ const I18N = {
     match: "Match",
     responsible: "Ansvarig",
     sla: "SLA",
+    contactRoute: "Kontaktväg",
+    vendorContact: "Leverantörskontakt",
     flowNoRule: "Ingen regel matchade vald kombination.",
     flowStep1: "1. Ärendetyp",
     flowStep2: "2. Kundtyp",
@@ -82,6 +120,7 @@ const I18N = {
     categorySaved: "Produktgrupp sparad.",
     ruleSaved: "Regel sparad.",
     needSupplier: "Lägg till leverantör innan du skapar varumärke.",
+    headlineRequired: "Ange en rubrik för hanteringsflödet.",
     resetDone: "Exempeldata återställd.",
     syncedServer: "Synkad med serverdata.",
     syncFail: "Kunde inte synka serverdata: {error}",
@@ -94,6 +133,39 @@ const I18N = {
       all: "Alla kundtyper",
       private: "Privat",
       b2b: "Business to business",
+    },
+    headlinePreset: {
+      doa_replacement: "DOA replacement process",
+      warranty_rma: "Warranty RMA process",
+      troubleshoot_before_return: "Troubleshooting before return",
+      vendor_direct_exchange: "Vendor direct exchange",
+      local_swap_reimbursement: "Local swap and vendor reimbursement",
+      repair_center: "Repair center workflow",
+      refund_authorization: "Refund authorization workflow",
+      vendor_tech_escalation: "Escalation to vendor technical team",
+      other: "Annan (fyll i själv)",
+    },
+    responsiblePreset: {
+      vendor_support: "Leverantörens support",
+      first_line: "1st line",
+      second_line: "2nd line",
+      logistics: "Logistik",
+      service_partner: "Servicepartner",
+      account_manager: "Account manager",
+      other: "Annan (fyll i själv)",
+    },
+    slaPreset: {
+      "4h": "4 arbetstimmar",
+      "8h": "8 arbetstimmar",
+      "24h": "24 timmar",
+      "48h": "48 timmar",
+      "3_5_days": "3-5 arbetsdagar",
+      other: "Annan (fyll i själv)",
+    },
+    contactModePreset: {
+      via_vendora: "Via Vendora support",
+      vendor_direct: "Slutkund kontaktar leverantör direkt",
+      hybrid: "Hybrid (Vendora + leverantör)",
     },
   },
   en: {
@@ -136,6 +208,12 @@ const I18N = {
     phInstructions: "Handling steps (one line per step)",
     phResponsible: "Responsible (e.g. 1st line / Supplier)",
     phSla: "SLA (e.g. response within 24h)",
+    phHeadlineCustom: "Custom headline",
+    phResponsibleCustom: "Custom responsible team",
+    phSlaCustom: "Custom SLA",
+    phVendorContactEmail: "Vendor support email",
+    phVendorContactPhone: "Vendor support phone",
+    phVendorContactNotes: "Contact instruction (e.g. end customer contacts vendor directly)",
     allBrands: "All brands",
     allCategories: "All categories",
     addSupplierFirst: "Add a supplier first",
@@ -149,6 +227,8 @@ const I18N = {
     match: "Match",
     responsible: "Responsible",
     sla: "SLA",
+    contactRoute: "Contact Route",
+    vendorContact: "Vendor Contact",
     flowNoRule: "No rule matched the selected combination.",
     flowStep1: "1. Case type",
     flowStep2: "2. Customer type",
@@ -173,6 +253,7 @@ const I18N = {
     categorySaved: "Category saved.",
     ruleSaved: "Rule saved.",
     needSupplier: "Add a supplier before creating a brand.",
+    headlineRequired: "Provide a handling headline.",
     resetDone: "Sample data reset.",
     syncedServer: "Synced with server data.",
     syncFail: "Could not sync server data: {error}",
@@ -185,6 +266,39 @@ const I18N = {
       all: "All customer types",
       private: "Private",
       b2b: "Business to business",
+    },
+    headlinePreset: {
+      doa_replacement: "DOA replacement process",
+      warranty_rma: "Warranty RMA process",
+      troubleshoot_before_return: "Troubleshooting before return",
+      vendor_direct_exchange: "Vendor direct exchange",
+      local_swap_reimbursement: "Local swap and vendor reimbursement",
+      repair_center: "Repair center workflow",
+      refund_authorization: "Refund authorization workflow",
+      vendor_tech_escalation: "Escalation to vendor technical team",
+      other: "Other (custom)",
+    },
+    responsiblePreset: {
+      vendor_support: "Vendor support",
+      first_line: "1st line",
+      second_line: "2nd line",
+      logistics: "Logistics",
+      service_partner: "Service partner",
+      account_manager: "Account manager",
+      other: "Other (custom)",
+    },
+    slaPreset: {
+      "4h": "4 business hours",
+      "8h": "8 business hours",
+      "24h": "24 hours",
+      "48h": "48 hours",
+      "3_5_days": "3-5 business days",
+      other: "Other (custom)",
+    },
+    contactModePreset: {
+      via_vendora: "Via Vendora support",
+      vendor_direct: "End customer contacts vendor directly",
+      hybrid: "Hybrid (Vendora + vendor)",
     },
   },
 };
@@ -321,6 +435,10 @@ function normalizeData(raw) {
               .filter(Boolean),
         responsible: String(r.responsible || ""),
         sla: String(r.sla || ""),
+        contactMode: String(r.contactMode || "via_vendora"),
+        vendorContactEmail: String(r.vendorContactEmail || ""),
+        vendorContactPhone: String(r.vendorContactPhone || ""),
+        vendorContactNotes: String(r.vendorContactNotes || ""),
       })),
   };
 }
@@ -408,6 +526,10 @@ function labelForCustomerType(id) {
   return t(`customerType.${id}`);
 }
 
+function labelForPreset(group, id) {
+  return t(`${group}.${id}`);
+}
+
 function labelForBrand(id) {
   if (id === "all") return t("allBrands");
   return byId(db.brands, id)?.name || t("unknownBrand");
@@ -416,6 +538,20 @@ function labelForBrand(id) {
 function labelForCategory(id) {
   if (id === "all") return t("allCategories");
   return byId(db.categories, id)?.name || t("unknownCategory");
+}
+
+function fillPresetSelect(selectId, presetIds, groupKey, selectedValue = null) {
+  const el = document.getElementById(selectId);
+  el.innerHTML = presetIds.map((id) => optionHtml(id, labelForPreset(groupKey, id))).join("");
+  if (selectedValue && presetIds.includes(selectedValue)) el.value = selectedValue;
+}
+
+function toggleCustomField(selectId, customInputId) {
+  const select = document.getElementById(selectId);
+  const custom = document.getElementById(customInputId);
+  const isOther = select.value === "other";
+  custom.classList.toggle("hidden", !isOther);
+  custom.required = isOther;
 }
 
 function readFlowInput() {
@@ -454,6 +590,7 @@ function fillAdminSelectors() {
   const ruleCustomer = document.getElementById("ruleCustomerType");
   const ruleBrand = document.getElementById("ruleBrand");
   const ruleCategory = document.getElementById("ruleCategory");
+  const ruleContactMode = document.getElementById("ruleContactMode");
 
   supplierSel.innerHTML = db.suppliers.length
     ? db.suppliers.map((s) => optionHtml(s.id, s.name)).join("")
@@ -467,6 +604,17 @@ function fillAdminSelectors() {
   ruleCategory.innerHTML = [optionHtml("all", t("allCategories"))]
     .concat(db.categories.map((c) => optionHtml(c.id, c.name)))
     .join("");
+
+  fillPresetSelect("ruleHeadlinePreset", HEADLINE_PRESETS, "headlinePreset");
+  fillPresetSelect("ruleResponsiblePreset", RESPONSIBLE_PRESETS, "responsiblePreset");
+  fillPresetSelect("ruleSlaPreset", SLA_PRESETS, "slaPreset");
+  ruleContactMode.innerHTML = CONTACT_MODE_PRESETS.map((x) =>
+    optionHtml(x, labelForPreset("contactModePreset", x)),
+  ).join("");
+
+  toggleCustomField("ruleHeadlinePreset", "ruleHeadlineCustom");
+  toggleCustomField("ruleResponsiblePreset", "ruleResponsibleCustom");
+  toggleCustomField("ruleSlaPreset", "ruleSlaCustom");
 }
 
 function scoreRule(rule, input) {
@@ -546,6 +694,9 @@ function renderResult() {
     <p><strong>${t("match")}:</strong> ${labelForBrand(rule.brandId)} / ${labelForCategory(rule.categoryId)}</p>
     <p><strong>${t("responsible")}:</strong> ${rule.responsible || t("notSet")}</p>
     <p><strong>${t("sla")}:</strong> ${rule.sla || t("notSet")}</p>
+    <p><strong>${t("contactRoute")}:</strong> ${labelForPreset("contactModePreset", rule.contactMode || "via_vendora")}</p>
+    <p><strong>${t("vendorContact")}:</strong> ${rule.vendorContactEmail || "-"} ${rule.vendorContactPhone ? `/ ${rule.vendorContactPhone}` : ""}</p>
+    ${rule.vendorContactNotes ? `<p>${rule.vendorContactNotes}</p>` : ""}
     <ol>${rule.instructions.map((step) => `<li>${step}</li>`).join("")}</ol>
   `;
 
@@ -607,9 +758,9 @@ function exportData() {
 
 function downloadCsvTemplate() {
   const header =
-    "supplierName,supplierEmail,supplierNotes,brandName,categoryNames,caseType,customerType,headline,instructions,responsible,sla";
+    "supplierName,supplierEmail,supplierNotes,brandName,categoryNames,caseType,customerType,headline,instructions,responsible,sla,contactMode,vendorContactEmail,vendorContactPhone,vendorContactNotes";
   const sample =
-    '"Nordic Supply AB","support@nordicsupply.se","Returns via portal","AeroHome","Robotdammsugare|Skarm","doa","private","DOA replacement process","Validate defect||Create return label||Ship replacement","1st line + Warehouse","Response 4h / replacement 24h"';
+    '"Nordic Supply AB","support@nordicsupply.se","Returns via portal","AeroHome","Robotdammsugare|Skarm","doa","private","DOA replacement process","Validate defect||Create return label||Ship replacement","1st line + Warehouse","Response 4h / replacement 24h","via_vendora","support@nordicsupply.se","+46 8 123 45 67","Complex technical cases are handled directly by supplier support."';
   const payload = `${header}\n${sample}\n`;
   const blob = new Blob([payload], { type: "text/csv;charset=utf-8" });
   const url = URL.createObjectURL(blob);
@@ -683,6 +834,15 @@ function bindEvents() {
 
   document.getElementById("langSv").addEventListener("click", () => setLanguage("sv"));
   document.getElementById("langEn").addEventListener("click", () => setLanguage("en"));
+  document.getElementById("ruleHeadlinePreset").addEventListener("change", () =>
+    toggleCustomField("ruleHeadlinePreset", "ruleHeadlineCustom"),
+  );
+  document.getElementById("ruleResponsiblePreset").addEventListener("change", () =>
+    toggleCustomField("ruleResponsiblePreset", "ruleResponsibleCustom"),
+  );
+  document.getElementById("ruleSlaPreset").addEventListener("change", () =>
+    toggleCustomField("ruleSlaPreset", "ruleSlaCustom"),
+  );
 
   document.getElementById("supplierForm").addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -732,19 +892,45 @@ function bindEvents() {
   document.getElementById("ruleForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     const data = new FormData(e.currentTarget);
+    const headlinePreset = String(data.get("headlinePreset") || "other").trim();
+    const responsiblePreset = String(data.get("responsiblePreset") || "other").trim();
+    const slaPreset = String(data.get("slaPreset") || "other").trim();
+
+    const headline =
+      headlinePreset === "other"
+        ? String(data.get("headlineCustom") || "").trim()
+        : labelForPreset("headlinePreset", headlinePreset);
+    const responsible =
+      responsiblePreset === "other"
+        ? String(data.get("responsibleCustom") || "").trim()
+        : labelForPreset("responsiblePreset", responsiblePreset);
+    const sla =
+      slaPreset === "other"
+        ? String(data.get("slaCustom") || "").trim()
+        : labelForPreset("slaPreset", slaPreset);
+
+    if (!headline) {
+      setImportStatus(t("headlineRequired"), true);
+      return;
+    }
+
     db.rules.push({
       id: uid("rule"),
       caseType: String(data.get("caseType") || "all").trim(),
       customerType: String(data.get("customerType") || "all").trim(),
       brandId: String(data.get("brandId") || "all").trim(),
       categoryId: String(data.get("categoryId") || "all").trim(),
-      headline: String(data.get("headline") || "").trim(),
+      headline,
       instructions: String(data.get("instructions") || "")
         .split("\n")
         .map((x) => x.trim())
         .filter(Boolean),
-      responsible: String(data.get("responsible") || "").trim(),
-      sla: String(data.get("sla") || "").trim(),
+      responsible,
+      sla,
+      contactMode: String(data.get("contactMode") || "via_vendora").trim(),
+      vendorContactEmail: String(data.get("vendorContactEmail") || "").trim(),
+      vendorContactPhone: String(data.get("vendorContactPhone") || "").trim(),
+      vendorContactNotes: String(data.get("vendorContactNotes") || "").trim(),
     });
     await persistData(t("ruleSaved"));
     e.currentTarget.reset();
